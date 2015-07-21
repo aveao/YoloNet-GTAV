@@ -124,10 +124,7 @@ public class danknet : Script
         {
             if (this.View.ActiveMenus == 0)
             {
-                if (!Function.Call<bool>(Hash.IS_DLC_PRESENT, -1762644250)) //checks if rockstar developer and doesn't open if developer
-                {
-                    this.OpenTrainerMenu();
-                }
+                this.OpenTrainerMenu();
             }
             else
             {
@@ -173,11 +170,11 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenTeleportMenu();
         menuItems.Add(button);
 
-        button = new MenuButton("(Ped) Mark Menu", "TP to car etc.");
-        button.Activated += (sender, args) => this.OpenMarkMenu(); //TODO: Actually implement this
-        menuItems.Add(button);
+        //button = new MenuButton("(Ped) Mark Menu", "TP to car etc.");
+        //button.Activated += (sender, args) => this.OpenMarkMenu(); //TODO: Actually implement this
+        //menuItems.Add(button);
 
-        button = new MenuButton("(Vehicle) Mark Menu", "TP to car etc.");
+        button = new MenuButton("(Vehicle) Mark Menu", "TP to car etc.\nPed Mark is coming soon.");
         button.Activated += (sender, args) => this.OpenMarkMenu();
         menuItems.Add(button);
 
