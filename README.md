@@ -23,10 +23,15 @@ Do NOT use this online. Although there is no checks if you use this online or no
 
 How to install:
 0) Understand that you'll use it at your own risk.
+
 Skip to 2 if you have ScriptHookV, skip to 3 if you have both SHV.Net and SHV.
+
 1) Download and install ScriptHookV: http://www.dev-c.com/gtav/scripthookv/
+
 2-1) Download https://github.com/crosire/scripthookvdotnet's latest release / download current version's source code and compile.
+
 2-2) Install it by copying the .asi and .dll file to GTA V folder.
+
 3) Download the .cs file (and the txt files if you want all the features) and copy it to the /scripts/ folder under your GTAV folder. (if it doesn't exist, create it)
 
 Done. It opens with F6 key.
