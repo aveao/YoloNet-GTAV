@@ -1,0 +1,96 @@
+-814,21
+179,58
+72,16
+Micheal's House
+7,22
+536,97
+176,03
+Franklin's House
+-14,58
+-1429,42
+31,1
+Franklins Aunt's House
+1274,86
+-1714,34
+54,77
+Lester's House
+447,09
+-985,54
+30,69
+Police Station
+161,43
+-762,96
+246,15
+Inside FBI
+154,08
+-760,1
+258,15
+Inside FBI Roof
+249,67
+219,57
+101,68
+Inside Bank Vault
+-1155,44
+-1518,77
+10,63
+Waynes Cousin's Apartment
+-74,94243
+-818,6345
+326,1743
+Top of Maze Bank
+126,1211
+-1278,513
+29,2696
+DJ place in Vanilla Unicorn
+22,8683
+-1073,751
+29,797
+Inside Gun Range
+3433,657
+5175,409
+35,8053
+Top of lighthouse
+97,2707
+-1290,994
+29,2688
+Trevor's Office in Vanilla Unicorn
+1397,524
+3607,423
+38,9419
+Trevor's Meth Lab
+-2501,939
+3309,898
+91,9665
+Fort Zancudo Tower
+-2356,429
+3258,518
+92,90373
+Fort Zancudo IT Room 
+-2355,235
+3249,346
+101,4508
+Fort Zancudo Tower 2
+-2360,469
+3243,682
+92,90373
+Fort Zancudo Tower 3 
+-2352,176
+3258,902
+32,81075
+Fort Zancudo Classroom 
+9,898878
+544,6732
+175,7178
+Top of Active Windmill 
+451,0429
+5561,077
+780,6779
+Mount Chilliad Cable Car  
+439,2584
+5572,288
+776,5486
+Mount Chilliad Ramp 
+2476,337
+3766,805
+41,43046
+Ufo drawings 
