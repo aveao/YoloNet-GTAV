@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Menu = GTA.Menu;
 using System.IO;
 using System.Drawing;
+using System.Text;
 
 public class danknet : Script
 {
@@ -565,7 +566,19 @@ public class danknet : Script
         enumm.Activated += enumm_Activated;
         menuItems.Add(enumm);
 
-        var button = new MenuButton("Open All Doors", "titan ftw");
+        var button = new MenuButton("Custom car primary color", "First r, then g and then b");
+        button.Activated += (sender, args) => this.rgbcarprimcolor(veh);
+        menuItems.Add(button);
+
+        button = new MenuButton("Custom car secondary color", "First r, then g and then b");
+        button.Activated += (sender, args) => this.rgbcarseccolor(veh);
+        menuItems.Add(button);
+
+        button = new MenuButton("Clear car secondary color", "");
+        button.Activated += (sender, args) => this.rgbcarclean(veh);
+        menuItems.Add(button);
+
+        button = new MenuButton("Open All Doors", "titan ftw");
         button.Activated += (sender, args) => this.Dooropen(veh);
         menuItems.Add(button);
 
@@ -1011,6 +1024,23 @@ public class danknet : Script
     }
 
     #endregion
+    //TODO: RGB PAINT CAR
+
+    private void rgbcarprimcolor(Vehicle veh)
+    {
+        veh.CustomPrimaryColor = Color.FromArgb(int.Parse(Game.GetUserInput(4)), int.Parse(Game.GetUserInput(4)), int.Parse(Game.GetUserInput(4)));
+    }
+
+    private void rgbcarseccolor(Vehicle veh)
+    {
+        veh.CustomPrimaryColor = Color.FromArgb(int.Parse(Game.GetUserInput(4)), int.Parse(Game.GetUserInput(4)), int.Parse(Game.GetUserInput(4)));
+    }
+
+    private void rgbcarclean(Vehicle veh)
+    {
+        veh.ClearCustomPrimaryColor();
+        veh.ClearCustomSecondaryColor();
+    }
 
     private void OpenSpawnMenu()
     {
