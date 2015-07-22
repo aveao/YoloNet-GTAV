@@ -11,7 +11,7 @@ A .Net, more specifically C# based GTA V menu, based on ScriptHookVDotNet, conta
 If you download this and send it to someone/share it publicly or privately, you have to state that it is based on this project that was made by me.
 
 **How to report a bug/a request:**
-Send an issue here https://github.com/ardaozkal/DankNet-GTAV/issues.
+Send an issue [here](https://github.com/ardaozkal/DankNet-GTAV/issues).
 
 **How to help:**
 Just send a pull request.
@@ -25,12 +25,12 @@ Do NOT use this online. Although there is no checks if you use this online or no
 
 *Skip to 2 if you have ScriptHookV, skip to 3 if you have both SHV.Net and SHV.*
 
-**1)** Download and install ScriptHookV: http://www.dev-c.com/gtav/scripthookv/
+**1)** Download and install [ScriptHookV](http://www.dev-c.com/gtav/scripthookv/) (or if you keep not listening to me and want to use it online, [go here](http://www.se7ensins.com/forums/threads/gta-online-online-bypass-1-28-mod-menu-mega-thread-info-thread.1318313/))
 
-**2-1)** Download https://github.com/crosire/scripthookvdotnet 's latest release (available here https://github.com/crosire/scripthookvdotnet/releases) / download current version's source code and compile (both will work, you pick.)
+**2-1)** Download [ScriptHookVDotNet](https://github.com/crosire/scripthookvdotnet)'s latest release (available [here](https://github.com/crosire/scripthookvdotnet/releases)) / download current version's source code and compile (both will work, you pick.)
 
 **2-2)** Install it by copying the .asi and .dll file to GTA V folder.
 
-**3)** Download this project as zip (https://github.com/ardaozkal/DankNet-GTAV/archive/master.zip) and copy the .cs and .txt files (not license and readme.md) to the /scripts/ folder under your GTAV folder. (if it doesn't exist, create it)
+**3)** [Download this project as zip](https://github.com/ardaozkal/DankNet-GTAV/archive/master.zip) and copy the .cs and .txt files (not license and readme.md) to the /scripts/ folder under your GTAV folder. (if it doesn't exist, create it)
 
 **Done.** *It opens with F6 key.*
