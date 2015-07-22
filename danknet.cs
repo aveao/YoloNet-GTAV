@@ -820,6 +820,26 @@ public class danknet : Script
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Ninef2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
+        button = new MenuButton("Spawn Surano", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Surano, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Schwartzer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Schwarzer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Feltzer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Feltzer2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Elegy RH8", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Elegy2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Khamelion", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Khamelion, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
         button = new MenuButton("Page 2", "");
         button.Activated += (sender, args) => this.OpenSportSpawnMenu2();
         menuItems.Add(button);
@@ -879,38 +899,7 @@ public class danknet : Script
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Banshee, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
-        button = new MenuButton("Page 3", "");
-        button.Activated += (sender, args) => this.OpenSportSpawnMenu3();
-        menuItems.Add(button);
-
         this.View.AddMenu(new Menu("Spawn Menu (Sport 2)", menuItems.ToArray()));
-    }
-
-    private void OpenSportSpawnMenu3()
-    {
-        var menuItems = new List<IMenuItem>();
-
-        var button = new MenuButton("Spawn Surano", "");
-        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Surano, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
-        menuItems.Add(button);
-
-        button = new MenuButton("Spawn Schwartzer", "");
-        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Schwarzer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
-        menuItems.Add(button);
-
-        button = new MenuButton("Spawn Feltzer", "");
-        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Feltzer2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
-        menuItems.Add(button);
-
-        button = new MenuButton("Spawn Elegy RH8", "");
-        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Elegy2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
-        menuItems.Add(button);
-
-        button = new MenuButton("Spawn Khamelion", "");
-        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Khamelion, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
-        menuItems.Add(button);
-
-        this.View.AddMenu(new Menu("Spawn Menu (Sport 3)", menuItems.ToArray()));
     }
 
     private void OpenSportClassicSpawnMenu()
@@ -1126,10 +1115,6 @@ public class danknet : Script
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Asea, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
-        button = new MenuButton("Spawn Asea (North Yankton)", "");
-        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Asea2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
-        menuItems.Add(button);
-
         button = new MenuButton("Open Page 2", "");
         button.Activated += (sender, args) => this.OpenSedanSpawnMenu2();
         menuItems.Add(button);
@@ -1173,10 +1158,6 @@ public class danknet : Script
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Emperor2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
-        button = new MenuButton("Spawn Emperor (North Yankton)", "");
-        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Emperor3, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
-        menuItems.Add(button);
-
         this.View.AddMenu(new Menu("Spawn Menu (Sedans)", menuItems.ToArray()));
     }
 
@@ -1202,10 +1183,6 @@ public class danknet : Script
 
         button = new MenuButton("Spawn Blista Compact", "");
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Blista2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
-        menuItems.Add(button);
-
-        button = new MenuButton("Spawn Monkey Blista", "");
-        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Blista3, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
         button = new MenuButton("Spawn Rhapsody", "");
@@ -1373,19 +1350,11 @@ public class danknet : Script
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.RancherXL, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
-        button = new MenuButton("Spawn Rancher XL 2", "");
-        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.RancherXL2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
-        menuItems.Add(button); 
-
-        button = new MenuButton("Spawn Mesa", "");
+        button = new MenuButton("Spawn (Topless) Mesa", "");
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Mesa, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
-        button = new MenuButton("Spawn Mesa 2", "");
-        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Mesa2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
-        menuItems.Add(button);
-
-        button = new MenuButton("Spawn Mesa 3", "");
+        button = new MenuButton("Spawn Mesa (Merryweather)", "");
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Mesa3, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
@@ -1393,19 +1362,15 @@ public class danknet : Script
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Bodhi2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
-        button = new MenuButton("Spawn Duneloader(!)", "");
+        button = new MenuButton("Spawn Dune (Buggy)", "");
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Dune, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
-        menuItems.Add(button);
-
-        button = new MenuButton("Spawn Dune (Buggy?) 2(!)", "");
-        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Dune2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
         button = new MenuButton("Spawn BF Injection", "");
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.BfInjection, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
-        button = new MenuButton("Spawn BF Injection", "");
+        button = new MenuButton("Spawn Bifta", "");
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Bifta, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
@@ -1459,8 +1424,83 @@ public class danknet : Script
         button = new MenuButton("Spawn Faggio", "");
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Faggio2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
-        //NOT OVER YET
+
+        button = new MenuButton("Spawn Bati 801", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Bati, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Bati 801RR", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Bati2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Carbon RS", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.CarbonRS, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Innovation", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Innovation, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Hexer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Hexer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Thrust", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Thrust, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Double-T(!)", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Double, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Akuma", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Akuma, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
         this.View.AddMenu(new Menu("Spawn Menu (Motorcycles)", menuItems.ToArray()));
+    }
+
+    private void OpenSpecialsSpawnMenu()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Spawn Space Docker", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Dune2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Duke", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Dukes, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Duke'o'Death", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Dukes2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Train", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Freight, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Monkey Blista", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Blista3, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Asea (North Yankton)", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Asea2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Rancher XL (North Yankton)", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.RancherXL2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Mesa (North Yankton)", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Mesa2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Emperor (North Yankton)", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Emperor3, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+        //I HAVEN'T DONE IT ALL!
+        this.View.AddMenu(new Menu("Spawn Menu (Specials)", menuItems.ToArray()));
     }
     #endregion
 
@@ -1504,8 +1544,16 @@ public class danknet : Script
         button = new MenuButton("Off-Road Cars", "");
         button.Activated += (sender, args) => this.OpenOffRoadSpawnMenu();
         menuItems.Add(button);
-        
-        //TODO: Motorcycles, Vans, Military, Emergency, Utility, Service, Industrial, Commercial, Cycles, Helicopters, Planes, Boats, Specials (Dukes, Space Docker, cable car, liberator (0xCD93A7DB), sovereign (0x2C509634))
+
+        button = new MenuButton("Motorcycles", "");
+        button.Activated += (sender, args) => this.OpenMotorcyclesSpawnMenu();
+        menuItems.Add(button);
+
+        button = new MenuButton("Specials", "WIP, more will be added");
+        button.Activated += (sender, args) => this.OpenSpecialsSpawnMenu();
+        menuItems.Add(button);
+
+        //TODO: Vans, Military, Emergency, Utility, Service, Industrial, Commercial, Cycles, Helicopters, Planes, Boats, Specials (Dukes, Space Docker, cable car, liberator (0xCD93A7DB), sovereign (0x2C509634))
         this.View.AddMenu(new Menu("Spawn Menu", menuItems.ToArray()));
     }
 
