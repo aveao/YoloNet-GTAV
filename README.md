@@ -27,7 +27,7 @@ Do NOT use this online. Although there is no checks if you use this online or no
 
 **1)** Download and install ScriptHookV: http://www.dev-c.com/gtav/scripthookv/
 
-**2-1)** Download https://github.com/crosire/scripthookvdotnet's latest release / download current version's source code and compile.
+**2-1)** Download https://github.com/crosire/scripthookvdotnet 's latest release (available here https://github.com/crosire/scripthookvdotnet/releases) / download current version's source code and compile (both will work, you pick.)
 
 **2-2)** Install it by copying the .asi and .dll file to GTA V folder.
 
