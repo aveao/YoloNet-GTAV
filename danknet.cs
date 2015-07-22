@@ -655,12 +655,20 @@ public class danknet : Script
         enumm.Activated += enumm_Activated;
         menuItems.Add(enumm);
 
-        var button = new MenuButton("Custom car primary color", "First r, then g and then b");
+        var button = new MenuButton("RGB car primary color", "First r, then g and then b");
         button.Activated += (sender, args) => this.rgbcarprimcolor(veh);
         menuItems.Add(button);
 
-        button = new MenuButton("Custom car secondary color", "First r, then g and then b");
+        button = new MenuButton("RGB car secondary color", "First r, then g and then b");
         button.Activated += (sender, args) => this.rgbcarseccolor(veh);
+        menuItems.Add(button);
+
+        button = new MenuButton("HEX car primary color", "Just hex like ff00ff");
+        button.Activated += (sender, args) => this.hexcarprimcolor(veh);
+        menuItems.Add(button);
+
+        button = new MenuButton("HEX car secondary color", "Just hex like ff00ff");
+        button.Activated += (sender, args) => this.hexcarseccolor(veh);
         menuItems.Add(button);
 
         button = new MenuButton("Clear car custom colors", "");
@@ -2728,6 +2736,19 @@ public class danknet : Script
                 Game.Player.Character.Position = (veh.Position + tpfactor);
             }
         }
+    }
+    //System.Drawing.Color.FromArgb(0xFF0000);  
+
+    private void hexcarprimcolor(Vehicle veh)
+    {
+        string got = Game.GetUserInput(7);
+        veh.CustomPrimaryColor = Color.FromArgb(int.Parse(got.Substring(0, 2), System.Globalization.NumberStyles.HexNumber), int.Parse(got.Substring(2, 2), System.Globalization.NumberStyles.HexNumber), int.Parse(got.Substring(4, 2), System.Globalization.NumberStyles.HexNumber));
+    }
+
+    private void hexcarseccolor(Vehicle veh)
+    {
+        string got = Game.GetUserInput(7);
+        veh.CustomSecondaryColor = Color.FromArgb(int.Parse(got.Substring(0, 2), System.Globalization.NumberStyles.HexNumber), int.Parse(got.Substring(2, 2), System.Globalization.NumberStyles.HexNumber), int.Parse(got.Substring(4, 2), System.Globalization.NumberStyles.HexNumber));
     }
 
     private void rgbcarprimcolor(Vehicle veh)
