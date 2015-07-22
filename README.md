@@ -31,6 +31,6 @@ Do NOT use this online. Although there is no checks if you use this online or no
 
 **2-2)** Install it by copying the .asi and .dll file to GTA V folder.
 
-**3)** Download the .cs file (and the txt files if you want all the features) and copy it to the /scripts/ folder under your GTAV folder. (if it doesn't exist, create it)
+**3)** Download this project as zip (https://github.com/ardaozkal/DankNet-GTAV/archive/master.zip) and copy the .cs and .txt files (not license and readme.md) to the /scripts/ folder under your GTAV folder. (if it doesn't exist, create it)
 
 **Done.** *It opens with F6 key.*
