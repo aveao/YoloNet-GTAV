@@ -39,11 +39,17 @@ public class danknet : Script
     bool healgun = false;
     bool opendoorgun = false;
     bool markgun = false;
+    bool markgunped = false;
     Vehicle markedvehicle;
     Vehicle markedvehicle1;
     Vehicle markedvehicle2;
     Vehicle markedvehicle3;
+    Ped markedped;
+    Ped markedped1;
+    Ped markedped2;
+    Ped markedped3;
     int curmark = 1;
+    int curmarkped = 1;
     Menu Markmenu;
     Vehicle curveh;
     Vector3 tpfactor = new Vector3(0f, 0f, 3f);
@@ -174,22 +180,105 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenTeleportMenu();
         menuItems.Add(button);
 
-        button = new MenuButton("(Ped) Mark Menu", "TP to car etc.");
-        button.Activated += (sender, args) => this.OpenMarkMenu(); //TODO: Actually implement this
+        button = new MenuButton("(Ped) Mark Menu", "TP, kill etc.");
+        button.Activated += (sender, args) => this.OpenPedMarkMenu();
         menuItems.Add(button);
 
         button = new MenuButton("(Vehicle) Mark Menu", "TP to car etc.");
-        button.Activated += (sender, args) => this.OpenMarkMenu();
+        button.Activated += (sender, args) => this.OpenVehicleMarkMenu();
         menuItems.Add(button);
 
         button = new MenuButton("About and how to use", "TODO:EDIT THIS");
         button.Activated += (sender, args) => this.OpenAbout();
         menuItems.Add(button);
 
-        this.View.AddMenu(new Menu("Danknet Menu v0.1", menuItems.ToArray()));
+        this.View.AddMenu(new Menu("Danknet Menu v0.2", menuItems.ToArray()));
     }
 
-    private void OpenMarkMenu()
+    private void OpenPedMarkMenu()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var toggle = new MenuToggle("Use markgun", "Just aim at a ped", markgunped);
+        toggle.Changed += (sender, args) =>
+        {
+            var tg = sender as MenuToggle;
+            if (tg == null)
+            {
+                return;
+            }
+            markgunped = tg.Value;
+        };
+        menuItems.Add(toggle);
+
+
+        if (markedped != null && markedped.Exists())
+        {
+            var button = new MenuButton("Unmark", "");
+            button.Activated += (sender, args) => this.UnMark();
+            menuItems.Add(button);
+            if (markedped1 != null && markedped1.Exists())
+            {
+                button = new MenuButton("Open Marked Menu 1", "");
+                button.Activated += (sender, args) => this.OpenPlayerMenu(markedped1);
+                menuItems.Add(button);
+                Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedped1, true);
+            }
+            else
+            {
+                markedped1 = null;
+            }
+
+            if (markedped2 != null && markedped2.Exists())
+            {
+                button = new MenuButton("Open Marked Menu 2", "");
+                button.Activated += (sender, args) => this.OpenPlayerMenu(markedped2);
+                menuItems.Add(button);
+                Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedped2, true);
+            }
+            else
+            {
+                markedped2 = null;
+            }
+
+            if (markedped3 != null && markedped3.Exists())
+            {
+                button = new MenuButton("Open Marked Menu 3", "");
+                button.Activated += (sender, args) => this.OpenPlayerMenu(markedped3);
+                menuItems.Add(button);
+                Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedped3, true);
+            }
+            else
+            {
+                markedped3 = null;
+            }
+        }
+        else
+        {
+            markedped = null;
+            if (curmarkped == 1)
+            {
+                markedped1 = markedped;
+            }
+            else if (curmarkped == 2)
+            {
+                markedped2 = markedped;
+            }
+            else if (curmarkped == 3)
+            {
+                markedped3 = markedped;
+            }
+        }
+
+        var numerog = new MenuNumericScroller(("Switch Marked Ped"), "", 1, 3, 1, (curmarkped - 1));
+        numerog.Changed += numerog_Changed;
+        menuItems.Add(numerog);
+
+        Markmenu = new Menu("(Ped) Mark Menu", menuItems.ToArray());
+        this.View.AddMenu(Markmenu);
+    }
+
+    private void OpenVehicleMarkMenu()
     {
         var menuItems = new List<IMenuItem>();
         var text = (markedvehicle != null) ? new MenuLabel(("Marked Vehicle: " + markedvehicle.FriendlyName), true) : new MenuLabel(("Marked Vehicle: None"), true);
@@ -293,7 +382,7 @@ public class danknet : Script
         numero.Changed += numero_Activated;
         menuItems.Add(numero);
 
-        Markmenu = new Menu("Mark Menu", menuItems.ToArray());
+        Markmenu = new Menu("(Vehicle) Mark Menu", menuItems.ToArray());
         this.View.AddMenu(Markmenu);
     }
 
@@ -713,7 +802,7 @@ public class danknet : Script
         var text = new MenuLabel("Made by Ardaozkal", true);
         menuItems.Add(text);
 
-        text = new MenuLabel("version 0.1", false);
+        text = new MenuLabel("version 0.2", false);
         menuItems.Add(text);
 
         text = new MenuLabel("Num 2 and 8 to scroll", false);
@@ -2142,7 +2231,31 @@ public class danknet : Script
             curmark = 1;
         }
         View.RemoveMenu(Markmenu);
-        OpenMarkMenu();
+        OpenVehicleMarkMenu();
+    }
+
+    void numerog_Changed(object sender, MenuItemDoubleValueArgs e)
+    {
+        curmarkped = (int)((MenuNumericScroller)sender).Value + 1;
+
+        if (curmarkped == 1)
+        {
+            markedped = markedped1;
+        }
+        else if (curmarkped == 2)
+        {
+            markedped = markedped2;
+        }
+        else if (curmarkped == 3)
+        {
+            markedped = markedped3;
+        }
+        else //error
+        {
+            curmarkped = 1;
+        }
+        View.RemoveMenu(Markmenu);
+        OpenPedMarkMenu();
     }
 
     private void UnMark()
@@ -2164,7 +2277,7 @@ public class danknet : Script
             Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedvehicle3, false);
         }
         View.RemoveMenu(Markmenu);
-        OpenMarkMenu();
+        OpenVehicleMarkMenu();
     }
 
     private void TpVehicleToMe(Vehicle veh)
@@ -2260,7 +2373,7 @@ public class danknet : Script
                 markedvehicle3 = markedvehicle;
             }
             View.RemoveMenu(Markmenu);
-            OpenMarkMenu();
+            OpenVehicleMarkMenu();
         }
     }
 
@@ -2303,7 +2416,7 @@ public class danknet : Script
                 markedvehicle3 = markedvehicle;
             }
             View.RemoveMenu(Markmenu);
-            OpenMarkMenu();
+            OpenVehicleMarkMenu();
         }
     }
 
@@ -2640,7 +2753,44 @@ public class danknet : Script
                     }
                     markgun = false;
                     View.RemoveMenu(Markmenu);
-                    OpenMarkMenu();
+                    OpenVehicleMarkMenu();
+                }
+            }
+
+            if (markgunped)
+            {
+                if (Game.Player.GetTargetedEntity().Exists() && Game.Player.GetTargetedEntity().Model.IsPed)
+                {
+                    if (curmarkped == 1)
+                    {
+                        if (markedped1 != null)
+                        {
+                            Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedped1, false);
+                        }
+                        markedped1 = (Ped)Game.Player.GetTargetedEntity();
+                        markedped = markedped1;
+                    }
+                    else if (curmarkped == 2)
+                    {
+                        if (markedped2 != null)
+                        {
+                            Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedped2, false);
+                        }
+                        markedped2 = (Ped)Game.Player.GetTargetedEntity();
+                        markedped = markedped2;
+                    }
+                    else if (curmarkped == 3)
+                    {
+                        if (markedped3 != null)
+                        {
+                            Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedped3, false);
+                        }
+                        markedped3 = (Ped)Game.Player.GetTargetedEntity();
+                        markedped = markedped3;
+                    }
+                    markgunped = false;
+                    View.RemoveMenu(Markmenu);
+                    OpenPedMarkMenu();
                 }
             }
 
