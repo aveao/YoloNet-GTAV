@@ -1019,28 +1019,71 @@ public class danknet : Script
         button = new MenuButton("Spawn Prairie", "");
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Prairie, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
-        
+
         this.View.AddMenu(new Menu("Spawn Menu (Coupes)", menuItems.ToArray()));
     }
 
+    private void OpenMuscleSpawnMenu()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Spawn Dominator", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Dominator, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Blade", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Blade, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Rat-Loader", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.RatLoader, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Rat-Loader 2", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.RatLoader2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Ruiner", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Ruiner, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Phoenix", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Phoenix, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Hotknife", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Hotknife, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Voodoo", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Voodoo2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Vigero", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Vigero, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Sabre Turbo", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.SabreGT, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Picador", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Picador, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Gauntlet", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Gauntlet, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Buccaneer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Buccaneer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        this.View.AddMenu(new Menu("Spawn Menu (Muscle)", menuItems.ToArray()));
+    }
+
     #endregion
-    //TODO: RGB PAINT CAR
 
-    private void rgbcarprimcolor(Vehicle veh)
-    {
-        veh.CustomPrimaryColor = Color.FromArgb(int.Parse(Game.GetUserInput(4)), int.Parse(Game.GetUserInput(4)), int.Parse(Game.GetUserInput(4)));
-    }
-
-    private void rgbcarseccolor(Vehicle veh)
-    {
-        veh.CustomPrimaryColor = Color.FromArgb(int.Parse(Game.GetUserInput(4)), int.Parse(Game.GetUserInput(4)), int.Parse(Game.GetUserInput(4)));
-    }
-
-    private void rgbcarclean(Vehicle veh)
-    {
-        veh.ClearCustomPrimaryColor();
-        veh.ClearCustomSecondaryColor();
-    }
 
     private void OpenSpawnMenu()
     {
@@ -1059,6 +1102,10 @@ public class danknet : Script
         menuItems.Add(button);
 
         button = new MenuButton("Coupe Cars", "");
+        button.Activated += (sender, args) => this.OpenSportClassicSpawnMenu();
+        menuItems.Add(button);
+
+        button = new MenuButton("Muscle Cars", "");
         button.Activated += (sender, args) => this.OpenSportClassicSpawnMenu();
         menuItems.Add(button);
         
@@ -1717,6 +1764,23 @@ public class danknet : Script
             }
         }
     }
+
+    private void rgbcarprimcolor(Vehicle veh)
+    {
+        veh.CustomPrimaryColor = Color.FromArgb(int.Parse(Game.GetUserInput(4)), int.Parse(Game.GetUserInput(4)), int.Parse(Game.GetUserInput(4)));
+    }
+
+    private void rgbcarseccolor(Vehicle veh)
+    {
+        veh.CustomPrimaryColor = Color.FromArgb(int.Parse(Game.GetUserInput(4)), int.Parse(Game.GetUserInput(4)), int.Parse(Game.GetUserInput(4)));
+    }
+
+    private void rgbcarclean(Vehicle veh)
+    {
+        veh.ClearCustomPrimaryColor();
+        veh.ClearCustomSecondaryColor();
+    }
+
     private void MarkVehicleImIn()
     {
         if (Game.Player.Character.IsInVehicle())
