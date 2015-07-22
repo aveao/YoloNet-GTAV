@@ -52,6 +52,13 @@ public class danknet : Script
     int curmarkped = 1;
     Menu Markmenu;
     Vehicle curveh;
+    bool featurePlayerUnlimitedAbility = false;
+    bool featurePlayerNoNoiseUpdated = false;
+    bool featurePlayerNoNoise = false;
+    bool featurePlayerSuperJump = false;
+    bool featureWeaponFireAmmo = false;
+    bool featureWeaponExplosiveAmmo = false;
+    bool featureWeaponExplosiveMelee = false;
     Vector3 tpfactor = new Vector3(0f, 0f, 3f);
     string configfile = "scripts\\danknetmenu.txt";
     private ScriptSettings settings;
@@ -188,17 +195,21 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenVehicleMarkMenu();
         menuItems.Add(button);
 
+        button = new MenuButton("North Yankton Menu", "TODO:EDIT THIS");
+        button.Activated += (sender, args) => this.OpenYanktonMenu();
+        menuItems.Add(button);
+
         button = new MenuButton("About and how to use", "TODO:EDIT THIS");
         button.Activated += (sender, args) => this.OpenAbout();
         menuItems.Add(button);
 
-        this.View.AddMenu(new Menu("Danknet Menu v0.2", menuItems.ToArray()));
+        this.View.AddMenu(new Menu("Danknet Menu v0.3", menuItems.ToArray()));
     }
 
     private void OpenPedMarkMenu()
     {
         var menuItems = new List<IMenuItem>();
-
+        //TODO: Shoot with explosions of the selected ped
         var toggle = new MenuToggle("Use markgun", "Just aim at a ped", markgunped);
         toggle.Changed += (sender, args) =>
         {
@@ -753,6 +764,22 @@ public class danknet : Script
         }
     }
 
+    private void OpenYanktonMenu()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Load North Yankton (Prologue)", "");
+        button.Activated += (sender, args) => this.loadnyankton(false);
+        menuItems.Add(button);
+        button = new MenuButton("Load North Yankton (Burying the hatchet)", "");
+        button.Activated += (sender, args) => this.loadnyankton(true);
+        menuItems.Add(button);
+        button = new MenuButton("Teleport me into it", "");
+        button.Activated += (sender, args) => this.tptony(Game.Player.Character);
+        menuItems.Add(button); 
+        this.View.AddMenu(new Menu(("North Yankton Menu"), menuItems.ToArray()));
+    }
+
     private void OpenVehicleRCMenu(Vehicle veh)
     {
         var menuItems = new List<IMenuItem>();
@@ -810,7 +837,7 @@ public class danknet : Script
         var text = new MenuLabel("Made by Ardaozkal", true);
         menuItems.Add(text);
 
-        text = new MenuLabel("version 0.2", false);
+        text = new MenuLabel("version 0.3", false);
         menuItems.Add(text);
 
         text = new MenuLabel("Num 2 and 8 to scroll", false);
@@ -1426,7 +1453,6 @@ public class danknet : Script
         this.View.AddMenu(new Menu("Spawn Menu (Off-Road)", menuItems.ToArray()));
     }
 
-
     private void OpenOffRoadSpawnMenu2()
     {
         var menuItems = new List<IMenuItem>();
@@ -1798,8 +1824,15 @@ public class danknet : Script
         button = new MenuButton("Spawn Fire Truck", "");
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.FireTruck, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
-        //FIB
-        //FIB SUV
+
+        button = new MenuButton("Spawn FIB", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.FBI, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn FIB SUV", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.FBI2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
         button = new MenuButton("Spawn Ambulance", "");
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Ambulance, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
@@ -1982,9 +2015,247 @@ public class danknet : Script
 
         this.View.AddMenu(new Menu("Spawn Menu (Commercial)", menuItems.ToArray()));
     }
+
+    private void OpenCyclesSpawnMenu()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Spawn Whippet Race Bike", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.TriBike, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Endurex Race Bike", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.TriBike2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Tri-Cycles Race Bike", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.TriBike3, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Scorcher", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Scorcher, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Fixter", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Fixter, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Cruiser", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Cruiser, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn BMX", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Bmx, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        this.View.AddMenu(new Menu("Spawn Menu (Cycles)", menuItems.ToArray()));
+    }
+
+    private void OpenHelisSpawnMenu()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Spawn Valkyrie", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Valkyrie, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Savage", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Savage, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Swift", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Swift, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Swift Deluxe", "aka Golden");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Swift2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Annihilator", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Annihilator, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Buzzard", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Buzzard, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Buzzard Attack Chopper", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Buzzard2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Cargobob", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Cargobob, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Jetsam Cargobob", "Little bit more colored");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Cargobob2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn TPI Cargobob", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Cargobob3, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Frogger", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Frogger, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn FIB Frogger", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Frogger2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Maverick", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Maverick, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Police Maverick", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Polmav, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Skylift", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Skylift, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        this.View.AddMenu(new Menu("Spawn Menu (Helicopters)", menuItems.ToArray()));
+    }
+
+    private void OpenPlaneSpawnMenu()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Spawn Vestra", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Vestra, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Savage", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Savage, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+        //besra
+
+        button = new MenuButton("Spawn Miljet", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Miljet, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Blimp", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Blimp, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Xero Blimp", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Blimp2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Luxor", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Luxor, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Luxor Deluxe", "aka Golden");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Luxor2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Shamal", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Shamal, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Cargo Plane", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.CargoPlane, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Cuban 800", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Cuban800, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Duster", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Duster, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Dodo", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Dodo, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+        //mallard
+        button = new MenuButton("Spawn Mammatus", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Mammatus, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn P-996 Lazer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Lazer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Titan", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Titan, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Velum", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Velum, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Velum2", "Idk difference\nbut always spawns yellow");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Velum2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        this.View.AddMenu(new Menu("Spawn Menu (Planes)", menuItems.ToArray()));
+    }
+
+    private void OpenBoatSpawnMenu()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Spawn Marquis", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Marquis, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Dinghy", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Dinghy, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Dinghy2", "Always black");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Dinghy2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Dinghy3", "Always black");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Dinghy3, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Police Predator", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Predator, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Jetmax", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Jetmax, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Squalo", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Squalo, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Suntrap", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Suntrap, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Tropic", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Tropic, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Seashark", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Seashark, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Lifegoard Seashark", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Seashark2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Submersible", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Submersible, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Kraken (Sub)", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Submersible2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        this.View.AddMenu(new Menu("Spawn Menu (Boats)", menuItems.ToArray()));
+    }
+
     #endregion
     //TODO: TRAILERS MENU start with trailer and tr.
-
+    //TODO: VEHICLE GUN! IsShooting ise yönünü alıp önünde araba spawnlayacak. Speedi de 1000 yapacak. (If you see this on Github, it is Turkish.)
     private void OpenSpawnMenu()
     {
         var menuItems = new List<IMenuItem>();
@@ -2049,15 +2320,29 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenCommercialSpawnMenu();
         menuItems.Add(button);
 
-        //TODO: Utility, Service, Industrial, Commercial, Cycles, Helicopters, Planes, Boats
+        button = new MenuButton("Cycles", "");
+        button.Activated += (sender, args) => this.OpenCyclesSpawnMenu();
+        menuItems.Add(button);
+
+        button = new MenuButton("Helicopters", "");
+        button.Activated += (sender, args) => this.OpenHelisSpawnMenu();
+        menuItems.Add(button);
+
+        button = new MenuButton("Planes", "");
+        button.Activated += (sender, args) => this.OpenPlaneSpawnMenu();
+        menuItems.Add(button);
+
+        button = new MenuButton("Boats", "");
+        button.Activated += (sender, args) => this.OpenBoatSpawnMenu();
+        menuItems.Add(button);
+
         button = new MenuButton("Special Vehicles", "");
         button.Activated += (sender, args) => this.OpenSpecialsSpawnMenu();
         menuItems.Add(button);
 
         this.View.AddMenu(new Menu("Spawn Menu", menuItems.ToArray()));
     }
-     
-    //{ "NORTH YANKTON", 3360.19f, -4849.67f, 111.8f } https://github.com/moocowmaniak/GTA-V-Improved-Trainer/blob/master/samples/NativeTrainer/script.cpp ln1842
+
 
     //TODO: Spawn Ramps and stuff. Ability to load from txt.
     //^Do not do until further notice
@@ -2279,77 +2564,150 @@ public class danknet : Script
             button.Activated += (sender, args) => this.Achihack();
             menuItems.Add(button);
 
-        toggle = new MenuToggle("Disable HUD", "bo2 calls hardcore,\n insurgent calls casual", huddisabled);
-        toggle.Changed += (sender, args) =>
-        {
-            var tg = sender as MenuToggle;
-            if (tg == null)
+            toggle = new MenuToggle("Disable HUD", "bo2 calls hardcore,\n insurgent calls casual", huddisabled);
+            toggle.Changed += (sender, args) =>
             {
-                return;
-            }
-            Function.Call(Hash.DISPLAY_HUD, !tg.Value);
-            Function.Call(Hash.DISPLAY_RADAR, !tg.Value);
-            huddisabled = tg.Value;
-        };
-        menuItems.Add(toggle);
+                var tg = sender as MenuToggle;
+                if (tg == null)
+                {
+                    return;
+                }
+                Function.Call(Hash.DISPLAY_HUD, !tg.Value);
+                Function.Call(Hash.DISPLAY_RADAR, !tg.Value);
+                huddisabled = tg.Value;
+            };
+            menuItems.Add(toggle);
 
-        toggle = new MenuToggle("No fall/drag outta car", "TODO:Add smth here", iliekitinside);
-        toggle.Changed += (sender, args) =>
-        {
-            var tgg = sender as MenuToggle;
-            if (tgg == null)
+            toggle = new MenuToggle("No fall/drag outta car", "TODO:Add smth here", iliekitinside);
+            toggle.Changed += (sender, args) =>
             {
-                return;
-            }
-            iliekitinside = tgg.Value;
-        };
-        menuItems.Add(toggle);
+                var tgg = sender as MenuToggle;
+                if (tgg == null)
+                {
+                    return;
+                }
+                iliekitinside = tgg.Value;
+            };
+            menuItems.Add(toggle);
 
-        toggle = new MenuToggle("Mobile Radio", "SR4 Style", mobileradio);
-        toggle.Changed += (sender, args) =>
-        {
-            var tg = sender as MenuToggle;
-            if (tg == null)
+            toggle = new MenuToggle("Mobile Radio", "SR4 Style", mobileradio);
+            toggle.Changed += (sender, args) =>
             {
-                return;
-            }
-            Function.Call(Hash._0x2F7CEB6520288061, tg.Value);
-            Function.Call(Hash.SET_AUDIO_FLAG, "AllowRadioDuringSwitch", tg.Value);
-            Function.Call(Hash.SET_MOBILE_PHONE_RADIO_STATE, tg.Value);
-            Function.Call(Hash.SET_AUDIO_FLAG, "MobileRadioInGame", tg.Value);
-            mobileradio = tg.Value;
-        };
-        menuItems.Add(toggle);
+                var tg = sender as MenuToggle;
+                if (tg == null)
+                {
+                    return;
+                }
+                Function.Call(Hash._0x2F7CEB6520288061, tg.Value);
+                Function.Call(Hash.SET_AUDIO_FLAG, "AllowRadioDuringSwitch", tg.Value);
+                Function.Call(Hash.SET_MOBILE_PHONE_RADIO_STATE, tg.Value);
+                Function.Call(Hash.SET_AUDIO_FLAG, "MobileRadioInGame", tg.Value);
+                mobileradio = tg.Value;
+            };
+            menuItems.Add(toggle);
 
-        button = new MenuButton("Skip Radio Song", "Skips Song");
-        button.Activated += (sender, args) => Function.Call(Hash.SKIP_RADIO_FORWARD);
-        menuItems.Add(button);
+            button = new MenuButton("Skip Radio Song", "Skips Song");
+            button.Activated += (sender, args) => Function.Call(Hash.SKIP_RADIO_FORWARD);
+            menuItems.Add(button);
 
-        toggle = new MenuToggle("Faster Move", "Gata go fast", sonicmode);
-        toggle.Changed += (sender, args) =>
-        {
-            var tg = sender as MenuToggle;
-            if (tg == null)
+            toggle = new MenuToggle("Faster Move", "Gata go fast", sonicmode);
+            toggle.Changed += (sender, args) =>
             {
-                return;
-            }
-            sonicmode = tg.Value;
-            if (tg.Value)
-            {
-                Function.Call(Hash._SET_SWIM_SPEED_MULTIPLIER, Game.Player, 1.49f);
-                Function.Call(Hash._SET_MOVE_SPEED_MULTIPLIER, Game.Player, 1.49f);
-            }
-            else
-            {
-                Function.Call(Hash._SET_SWIM_SPEED_MULTIPLIER, Game.Player, 1f);
-                Function.Call(Hash._SET_MOVE_SPEED_MULTIPLIER, Game.Player, 1f);
-            }
-        };
-        menuItems.Add(toggle);
+                var tg = sender as MenuToggle;
+                if (tg == null)
+                {
+                    return;
+                }
+                sonicmode = tg.Value;
+                if (tg.Value)
+                {
+                    Function.Call(Hash._SET_SWIM_SPEED_MULTIPLIER, Game.Player, 1.49f);
+                    Function.Call(Hash._SET_MOVE_SPEED_MULTIPLIER, Game.Player, 1.49f);
+                }
+                else
+                {
+                    Function.Call(Hash._SET_SWIM_SPEED_MULTIPLIER, Game.Player, 1f);
+                    Function.Call(Hash._SET_MOVE_SPEED_MULTIPLIER, Game.Player, 1f);
+                }
+            };
+            menuItems.Add(toggle);
 
-        button = new MenuButton("Noclip", "use first person \n to change facing way \n num+/- to change speed");
-        button.Activated += (sender, args) => this.togglenoclip();
-        menuItems.Add(button);
+            toggle = new MenuToggle("Unlimited Ability", "gooota beee slooooow\nor gata be stronk", featurePlayerUnlimitedAbility);
+            toggle.Changed += (sender, args) =>
+            {
+                var tg = sender as MenuToggle;
+                if (tg == null)
+                {
+                    return;
+                }
+                featurePlayerUnlimitedAbility = tg.Value;
+            };
+            menuItems.Add(toggle);
+
+            toggle = new MenuToggle("No Noise", "*empty, cuz u cant hear m8*", featurePlayerNoNoise);
+            toggle.Changed += (sender, args) =>
+            {
+                var tg = sender as MenuToggle;
+                if (tg == null)
+                {
+                    return;
+                }
+                featurePlayerNoNoiseUpdated = tg.Value;
+                featurePlayerNoNoise = tg.Value;
+            };
+            menuItems.Add(toggle);
+
+            toggle = new MenuToggle("Super Jump", "aka KANGAROO in GTA:SA", featurePlayerSuperJump);
+            toggle.Changed += (sender, args) =>
+            {
+                var tg = sender as MenuToggle;
+                if (tg == null)
+                {
+                    return;
+                }
+                featurePlayerSuperJump = tg.Value;
+            };
+            menuItems.Add(toggle);
+
+            toggle = new MenuToggle("Fire Ammo", "Glorious Helicopters <3", featureWeaponFireAmmo);
+            toggle.Changed += (sender, args) =>
+            {
+                var tg = sender as MenuToggle;
+                if (tg == null)
+                {
+                    return;
+                }
+                featureWeaponFireAmmo = tg.Value;
+            };
+            menuItems.Add(toggle);
+
+            toggle = new MenuToggle("Explosive Ammo", "Wait didn't I already code this?", featureWeaponExplosiveAmmo);
+            toggle.Changed += (sender, args) =>
+            {
+                var tg = sender as MenuToggle;
+                if (tg == null)
+                {
+                    return;
+                }
+                featureWeaponExplosiveAmmo = tg.Value;
+            };
+            menuItems.Add(toggle);
+
+            toggle = new MenuToggle("Explosive Melee", "Wait didn't I already code this?", featureWeaponExplosiveMelee);
+            toggle.Changed += (sender, args) =>
+            {
+                var tg = sender as MenuToggle;
+                if (tg == null)
+                {
+                    return;
+                }
+                featureWeaponExplosiveMelee = tg.Value;
+            };
+            menuItems.Add(toggle);
+
+            button = new MenuButton("Noclip", "use first person \n to change facing way \n num+/- to change speed");
+            button.Activated += (sender, args) => this.togglenoclip();
+            menuItems.Add(button);
         }
 
         this.View.AddMenu(new Menu("Player Menu", menuItems.ToArray()));
@@ -2426,11 +2784,24 @@ public class danknet : Script
         button.Activated += (sender, args) => this.setweather(Weather.Blizzard);
         menuItems.Add(button);
 
+        button = new MenuButton("Weather: ThunderStorm", "Watch dem clouds");
+        button.Activated += (sender, args) => this.setweather(Weather.ThunderStorm);
+        menuItems.Add(button);
+
+        var numerogg = new MenuNumericScroller(("Gravity Level"), "0 is normal, 3 is fly", 0, 3, 1, grav);
+        numerogg.Changed += numerogg_Changed;
+        menuItems.Add(numerogg);
         //button = new MenuButton("Goto Mission Marker" + GTA.World.GetActiveBlips().Length, "ezpz races");
         //button.Activated += (sender, args) => this.GotoMissionMarker2();
         //menuItems.Add(button);
 
-        this.View.AddMenu(new Menu("World Stuff", menuItems.ToArray()));
+        this.View.AddMenu(new Menu("World Menu", menuItems.ToArray()));
+    }
+    int grav = 0;
+    void numerogg_Changed(object sender, MenuItemDoubleValueArgs e)
+    {
+        grav = (int)((MenuNumericScroller)sender).Value;
+        World.GravityLevel = grav;
     }
 
     private void OpenCopsMenu()
@@ -2720,6 +3091,97 @@ public class danknet : Script
             {
                 Game.Player.Character.SetIntoVehicle(veh, VehicleSeat.Any);
             }
+        }
+    }
+
+
+    void loadnyankton(bool bth)
+    {
+        //bth bury the hatchet
+        Function.Call(Hash.REQUEST_IPL, "plg_01");
+        Function.Call(Hash.REQUEST_IPL, "prologue01");
+        Function.Call(Hash.REQUEST_IPL, "prologue01_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue01c");
+        Function.Call(Hash.REQUEST_IPL, "prologue01c_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue01d");
+        Function.Call(Hash.REQUEST_IPL, "prologue01d_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue01e");
+        Function.Call(Hash.REQUEST_IPL, "prologue01e_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue01f");
+        Function.Call(Hash.REQUEST_IPL, "prologue01f_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue01g");
+        Function.Call(Hash.REQUEST_IPL, "prologue01h");
+        Function.Call(Hash.REQUEST_IPL, "prologue01h_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue01i");
+        Function.Call(Hash.REQUEST_IPL, "prologue01i_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue01j");
+        Function.Call(Hash.REQUEST_IPL, "prologue01j_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue01k");
+        Function.Call(Hash.REQUEST_IPL, "prologue01k_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue01z");
+        Function.Call(Hash.REQUEST_IPL, "prologue01z_lod");
+        Function.Call(Hash.REQUEST_IPL, "plg_02");
+        Function.Call(Hash.REQUEST_IPL, "prologue02");
+        Function.Call(Hash.REQUEST_IPL, "prologue02_lod");
+        Function.Call(Hash.REQUEST_IPL, "plg_03");
+        Function.Call(Hash.REQUEST_IPL, "prologue03");
+        Function.Call(Hash.REQUEST_IPL, "prologue03_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue03b");
+        Function.Call(Hash.REQUEST_IPL, "prologue03b_lod");
+        if (bth)
+        {
+            Function.Call(Hash.REQUEST_IPL, "prologue03_grv_cov");
+            Function.Call(Hash.REQUEST_IPL, "prologue03_grv_cov_lod");
+            Function.Call(Hash.REQUEST_IPL, "prologue03_grv_fun");
+        }
+        else
+        {
+            Function.Call(Hash.REQUEST_IPL, "prologue03_grv_dug");
+            Function.Call(Hash.REQUEST_IPL, "prologue03_grv_dug_lod");
+            Function.Call(Hash.REQUEST_IPL, "prologue_grv_torch");
+        }
+        Function.Call(Hash.REQUEST_IPL, "plg_04");
+        Function.Call(Hash.REQUEST_IPL, "prologue04");
+        Function.Call(Hash.REQUEST_IPL, "prologue04_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue04b");
+        Function.Call(Hash.REQUEST_IPL, "prologue04b_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue04_cover");
+        Function.Call(Hash.REQUEST_IPL, "des_protree_end");
+        Function.Call(Hash.REQUEST_IPL, "des_protree_start");
+        Function.Call(Hash.REQUEST_IPL, "des_protree_start_lod");
+        Function.Call(Hash.REQUEST_IPL, "plg_05");
+        Function.Call(Hash.REQUEST_IPL, "prologue05");
+        Function.Call(Hash.REQUEST_IPL, "prologue05_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue05b");
+        Function.Call(Hash.REQUEST_IPL, "prologue05b_lod");
+        Function.Call(Hash.REQUEST_IPL, "plg_06");
+        Function.Call(Hash.REQUEST_IPL, "prologue06");
+        Function.Call(Hash.REQUEST_IPL, "prologue06_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue06b");
+        Function.Call(Hash.REQUEST_IPL, "prologue06b_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue06_int");
+        Function.Call(Hash.REQUEST_IPL, "prologue06_int_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue06_pannel");
+        Function.Call(Hash.REQUEST_IPL, "prologue06_pannel_lod");
+        Function.Call(Hash.REQUEST_IPL, "prologue_m2_door");
+        Function.Call(Hash.REQUEST_IPL, "prologue_m2_door_lod");
+        Function.Call(Hash.REQUEST_IPL, "plg_occl_00");
+        Function.Call(Hash.REQUEST_IPL, "prologue_occl");
+        Function.Call(Hash.REQUEST_IPL, "plg_rd");
+        Function.Call(Hash.REQUEST_IPL, "prologuerd");
+        Function.Call(Hash.REQUEST_IPL, "prologuerdb");
+        Function.Call(Hash.REQUEST_IPL, "prologuerd_lod");
+    }
+
+    void tptony(Ped name)
+    {
+        if (name.IsInVehicle())
+        {
+            name.CurrentVehicle.Position = new Vector3(3360.19f, -4849.67f, 111.8f);
+        }
+        else
+        {
+            name.Position = new Vector3(3360.19f, -4849.67f, 111.8f);
         }
     }
 
@@ -3256,6 +3718,43 @@ public class danknet : Script
             {
                 if (Game.Player.GetTargetedEntity().Exists())
                     Game.Player.GetTargetedEntity().Health = 0;
+            }
+
+            // player special ability
+            if (featurePlayerUnlimitedAbility)
+            {
+                Function.Call(Hash._RECHARGE_SPECIAL_ABILITY, Game.Player, 1);
+            }
+
+            // player no noise
+            if (featurePlayerNoNoiseUpdated)
+            {
+                if (!featurePlayerNoNoise)
+                    Function.Call(Hash.SET_PLAYER_NOISE_MULTIPLIER, Game.Player, 1.0);
+                featurePlayerNoNoiseUpdated = false;
+            }
+
+            if (featurePlayerNoNoise)
+            {
+                Function.Call(Hash.SET_PLAYER_NOISE_MULTIPLIER, Game.Player, 0.0);
+            }
+
+            if (featurePlayerSuperJump)
+            {
+                Function.Call(Hash.SET_SUPER_JUMP_THIS_FRAME, Game.Player);
+            }
+
+            if (featureWeaponFireAmmo)
+            {
+                Function.Call(Hash.SET_FIRE_AMMO_THIS_FRAME, Game.Player);
+            }
+            if (featureWeaponExplosiveAmmo)
+            {
+                Function.Call(Hash.SET_EXPLOSIVE_AMMO_THIS_FRAME, Game.Player);
+            }
+            if (featureWeaponExplosiveMelee)
+            {
+                Function.Call(Hash.SET_EXPLOSIVE_MELEE_THIS_FRAME, Game.Player);
             }
         }
         catch
