@@ -2373,10 +2373,6 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenCyclesSpawnMenu();
         menuItems.Add(button);
 
-        Prop idk = World.CreateProp(((Model)(-1818980770)), Game.Player.Character.Position, false, true);
-        idk.Heading = Game.Player.Character.Heading;
-        idk.AddBlip();
-
         button = new MenuButton("Helicopters", "");
         button.Activated += (sender, args) => this.OpenHelisSpawnMenu();
         menuItems.Add(button);
