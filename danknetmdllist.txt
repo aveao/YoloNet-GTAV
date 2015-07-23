@@ -4,15 +4,7 @@ Ferris Wheel
 -1003748966
 Beach Fire
 -1065766299
-Windmill 1
--1569260983
-Windmill 2
-762449981
-Windmill 3
-1252486771
-Windmill 4
--1404196790
-Windmill 5
-1939614199
-Windmill 6
-1745179636
+Online Entry Jet
+-1027860019
+Windmill
+87144653
