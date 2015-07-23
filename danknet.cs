@@ -285,7 +285,7 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenAbout();
         menuItems.Add(button);
 
-        this.View.AddMenu(new Menu("Danknet Menu v0.4", menuItems.ToArray()));
+        this.View.AddMenu(new Menu("Danknet Menu v0.3", menuItems.ToArray()));
     }
 
     private void OpenPedMarkMenu()
@@ -917,7 +917,7 @@ public class danknet : Script
         var text = new MenuLabel("Made by Ardaozkal", true);
         menuItems.Add(text);
 
-        text = new MenuLabel("version 0.4", false);
+        text = new MenuLabel("version 0.3", false);
         menuItems.Add(text);
 
         text = new MenuLabel("Num 2 and 8 to scroll", false);
