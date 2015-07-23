@@ -63,8 +63,10 @@ public class danknet : Script
     string configfile = "scripts\\danknetmenu.txt";
     private ScriptSettings settings;
     private Dictionary<Vector3, string> tplist = new Dictionary<Vector3, string>();
+    private Dictionary<string, int> mdllist = new Dictionary<string, int>();
     string sectionname = "DANKNETMENU";
     string tpfilename = "scripts\\danknettplist.txt";
+    string mdlfilename = "scripts\\danknetmdllist.txt";
 
     public danknet()
     {
@@ -130,6 +132,40 @@ public class danknet : Script
             File.Create(tpfilename).Close();
         }
 
+        if (File.Exists(mdlfilename))
+        {
+            List<string> readen = new List<string>();
+            readen.AddRange(File.ReadAllLines(mdlfilename)); //name newline int of model
+
+            string nagme = ""; //name
+            int mdlno;
+            int no = 0;
+            foreach (string readed in readen)
+            {
+                no++;
+                try
+                {
+                    if (no == 1)
+                    {
+                        nagme = readed;
+                    }
+                    else if (no == 2)
+                    {
+                        mdlno = int.Parse(readed);
+                        no = 0;
+                        mdllist.Add(nagme, mdlno);
+                    }
+                }
+                catch
+                {
+                    //this one is dangerous, file with bad format can crash script.
+                }
+            }
+        }
+        else
+        {
+            File.Create(mdlfilename).Close();
+        }
     }
     #region
     private void OnKeyDown(object sender, KeyEventArgs e)
@@ -163,8 +199,12 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenPlayerMenu(Game.Player.Character);
         menuItems.Add(button);
 
-        button = new MenuButton("Spawn Menu", "TODO:EDIT THIS");
-        button.Activated += (sender, args) => this.OpenSpawnMenu();
+        button = new MenuButton("(Vehicle) Spawn Menu", "TODO:EDIT THIS");
+        button.Activated += (sender, args) => this.OpenSpawnMenuVehicle();
+        menuItems.Add(button);
+
+        button = new MenuButton("(Object) Spawn Menu", "TODO:EDIT THIS");
+        button.Activated += (sender, args) => this.OpenSpawnMenuObject();
         menuItems.Add(button);
 
         button = new MenuButton("Weapon Menu", "TODO:EDIT THIS");
@@ -466,8 +506,6 @@ public class danknet : Script
             buttonm.Activated += (sender, args) => this.opentp2(curpage - 1);
             menuItems.Add(buttonm);
         }
-
-        Dictionary<Vector3, string> locationlist = new Dictionary<Vector3, string>();
 
         int currentno = 0;
         int skipno = 0;
@@ -1635,7 +1673,18 @@ public class danknet : Script
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Pony2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
-        button = new MenuButton("Spawn Asea (North Yankton)", "");
+        button = new MenuButton("North Yankton Vehicles", "");
+        button.Activated += (sender, args) => this.OpenSpecialsSpawnMenu2();
+        menuItems.Add(button);
+
+        this.View.AddMenu(new Menu("Spawn Menu (Specials)", menuItems.ToArray()));
+    }
+
+    private void OpenSpecialsSpawnMenu2()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Spawn Asea (North Yankton)", "");
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Asea2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
@@ -1675,7 +1724,7 @@ public class danknet : Script
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Stockade3, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
         //Want a special car here? Send me a message!
-        this.View.AddMenu(new Menu("Spawn Menu (Specials)", menuItems.ToArray()));
+        this.View.AddMenu(new Menu("Spawn Menu (North Yankton)", menuItems.ToArray()));
     }
 
     private void OpenVanSpawnMenu()
@@ -2256,7 +2305,7 @@ public class danknet : Script
     #endregion
     //TODO: TRAILERS MENU start with trailer and tr.
     //TODO: VEHICLE GUN! IsShooting ise yönünü alıp önünde araba spawnlayacak. Speedi de 1000 yapacak. (If you see this on Github, it is Turkish.)
-    private void OpenSpawnMenu()
+    private void OpenSpawnMenuVehicle()
     {
         var menuItems = new List<IMenuItem>();
 
@@ -2324,6 +2373,10 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenCyclesSpawnMenu();
         menuItems.Add(button);
 
+        Prop idk = World.CreateProp(((Model)(-1818980770)), Game.Player.Character.Position, false, true);
+        idk.Heading = Game.Player.Character.Heading;
+        idk.AddBlip();
+
         button = new MenuButton("Helicopters", "");
         button.Activated += (sender, args) => this.OpenHelisSpawnMenu();
         menuItems.Add(button);
@@ -2340,7 +2393,103 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenSpecialsSpawnMenu();
         menuItems.Add(button);
 
-        this.View.AddMenu(new Menu("Spawn Menu", menuItems.ToArray()));
+        this.View.AddMenu(new Menu("(Vehicle) Spawn Menu", menuItems.ToArray()));
+    }
+
+    private void OpenSpawnMenuObject()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Custom Input", "Example Input:\n-1818980770");
+        button.Activated += (sender, args) => this.spawnprop(((Model)(int.Parse(Game.GetUserInput(20)))), Game.Player.Character.Position, false, true, Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        int numbr = 0;
+        foreach (string str in mdllist.Keys)
+        {
+            if (!(numbr == 15))
+            {
+                numbr++;
+                int blabla;
+                mdllist.TryGetValue(str, out blabla);
+
+                button = new MenuButton(str, blabla.ToString());
+                button.Activated += (sender, args) => this.spawnprop(((Model)blabla), Game.Player.Character.Position, false, true, Game.Player.Character.Heading);
+                menuItems.Add(button);
+            }
+        }
+        if (numbr == 15)
+        {
+            button = new MenuButton("Page 2", "");
+            button.Activated += (sender, args) => this.spawnprop(((Model)(int.Parse(Game.GetUserInput(20)))), Game.Player.Character.Position, false, true, Game.Player.Character.Heading);
+            menuItems.Add(button);
+        }
+
+        this.View.AddMenu(new Menu("(Object) Spawn Menu", menuItems.ToArray()));
+    }
+
+    private void openspawnprop2(int page)
+    {
+        if (page == 2)
+        {
+            View.RemoveMenu(lastmenu2);
+        }
+        OpenSpawnMenuObject2(page);
+    }
+
+    Menu lastmenu2;
+    private void OpenSpawnMenuObject2(int curpage)
+    {
+        var menuItems = new List<IMenuItem>();
+
+        if (curpage > 2) //3 or bigger
+        {
+            View.RemoveMenu(lastmenu);
+            var buttonm = new MenuButton(("Page " + (curpage - 1)), ("See page " + (curpage - 1)));
+            buttonm.Activated += (sender, args) => this.opentp2(curpage - 1);
+            menuItems.Add(buttonm);
+        }
+
+        int currentno = 0;
+        int skipno = 0;
+        foreach (string name in mdllist.Keys)
+        {
+            if (skipno == (10 * (curpage - 1)))
+            {
+                if (currentno == 10)
+                {
+                    var buttonm = new MenuButton(("Page " + (curpage + 1)), ("See page " + (curpage + 1)));
+                    buttonm.Activated += (sender, args) => this.OpenTeleportMenu2(curpage + 1);
+                    menuItems.Add(buttonm);
+                    break;
+                }
+                currentno++;
+                int mdll;
+                mdllist.TryGetValue(name, out mdll);
+
+                var button = new MenuButton(name, (mdll.ToString()));
+                button.Activated += (sender, args) => this.spawnprop(((Model)mdll), Game.Player.Character.Position, false, true, Game.Player.Character.Heading);
+                menuItems.Add(button);
+            }
+            else
+            {
+                skipno++;
+            }
+        }
+        Menu thismenu = new Menu(("(Object) Spawn Menu " + curpage), menuItems.ToArray());
+        lastmenu2 = thismenu;
+        this.View.AddMenu(thismenu);
+    }
+
+    private void spawnprop(Model modelname, Vector3 pos, bool dynamic, bool placeonground)
+    {
+        World.CreateProp(modelname, pos, dynamic, placeonground);
+    }
+
+    private void spawnprop(Model modelname, Vector3 pos, bool dynamic, bool placeonground, float heading)
+    {
+        Prop idk = World.CreateProp(modelname, pos, dynamic, placeonground);
+        idk.Heading = heading;
     }
 
 
