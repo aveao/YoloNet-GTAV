@@ -64,9 +64,11 @@ public class danknet : Script
     private ScriptSettings settings;
     private Dictionary<Vector3, string> tplist = new Dictionary<Vector3, string>();
     private Dictionary<string, int> mdllist = new Dictionary<string, int>();
+    private Dictionary<string, int> pedlist = new Dictionary<string, int>();
     string sectionname = "DANKNETMENU";
     string tpfilename = "scripts\\danknettplist.txt";
     string mdlfilename = "scripts\\danknetmdllist.txt";
+    string pedfilename = "scripts\\danknetpedlist.txt";
 
     public danknet()
     {
@@ -166,6 +168,42 @@ public class danknet : Script
         {
             File.Create(mdlfilename).Close();
         }
+
+
+        if (File.Exists(pedfilename))
+        {
+            List<string> readen = new List<string>();
+            readen.AddRange(File.ReadAllLines(pedfilename)); //name newline int of model
+
+            string nagme = ""; //name
+            int mdlno;
+            int no = 0;
+            foreach (string readed in readen)
+            {
+                no++;
+                try
+                {
+                    if (no == 1)
+                    {
+                        nagme = readed;
+                    }
+                    else if (no == 2)
+                    {
+                        mdlno = int.Parse(readed);
+                        no = 0;
+                        pedlist.Add(nagme, mdlno);
+                    }
+                }
+                catch
+                {
+                    //this one is dangerous, file with bad format can crash script.
+                }
+            }
+        }
+        else
+        {
+            File.Create(pedfilename).Close();
+        }
     }
     #region
     private void OnKeyDown(object sender, KeyEventArgs e)
@@ -207,6 +245,10 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenSpawnMenuObject();
         menuItems.Add(button);
 
+        button = new MenuButton("(Ped) Spawn Menu", "TODO:EDIT THIS");
+        button.Activated += (sender, args) => this.OpenSpawnMenuPed();
+        menuItems.Add(button);
+
         button = new MenuButton("Weapon Menu", "TODO:EDIT THIS");
         button.Activated += (sender, args) => this.OpenWeaponMenu();
         menuItems.Add(button);
@@ -243,7 +285,7 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenAbout();
         menuItems.Add(button);
 
-        this.View.AddMenu(new Menu("Danknet Menu v0.3", menuItems.ToArray()));
+        this.View.AddMenu(new Menu("Danknet Menu v0.4", menuItems.ToArray()));
     }
 
     private void OpenPedMarkMenu()
@@ -263,46 +305,11 @@ public class danknet : Script
         menuItems.Add(toggle);
 
 
-        if (markedped != null && markedped.Exists())
+        if (markedped != null && markedped.Exists() && markedped.IsAlive)
         {
             var button = new MenuButton("Unmark", "");
             button.Activated += (sender, args) => this.UnMark();
             menuItems.Add(button);
-            if (markedped1 != null && markedped1.Exists())
-            {
-                button = new MenuButton("Open Marked Menu 1", "");
-                button.Activated += (sender, args) => this.OpenPlayerMenu(markedped1);
-                menuItems.Add(button);
-                Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedped1, true);
-            }
-            else
-            {
-                markedped1 = null;
-            }
-
-            if (markedped2 != null && markedped2.Exists())
-            {
-                button = new MenuButton("Open Marked Menu 2", "");
-                button.Activated += (sender, args) => this.OpenPlayerMenu(markedped2);
-                menuItems.Add(button);
-                Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedped2, true);
-            }
-            else
-            {
-                markedped2 = null;
-            }
-
-            if (markedped3 != null && markedped3.Exists())
-            {
-                button = new MenuButton("Open Marked Menu 3", "");
-                button.Activated += (sender, args) => this.OpenPlayerMenu(markedped3);
-                menuItems.Add(button);
-                Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedped3, true);
-            }
-            else
-            {
-                markedped3 = null;
-            }
         }
         else
         {
@@ -319,6 +326,41 @@ public class danknet : Script
             {
                 markedped3 = markedped;
             }
+        }
+        if (markedped1 != null && markedped1.Exists() && markedped1.IsAlive)
+        {
+            var button = new MenuButton("Open Marked Menu 1", "");
+            button.Activated += (sender, args) => this.OpenPlayerMenu(markedped1);
+            menuItems.Add(button);
+            Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedped1, true);
+        }
+        else
+        {
+            markedped1 = null;
+        }
+
+        if (markedped2 != null && markedped2.Exists() && markedped2.IsAlive)
+        {
+            var button = new MenuButton("Open Marked Menu 2", "");
+            button.Activated += (sender, args) => this.OpenPlayerMenu(markedped2);
+            menuItems.Add(button);
+            Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedped2, true);
+        }
+        else
+        {
+            markedped2 = null;
+        }
+
+        if (markedped3 != null && markedped3.Exists() && markedped3.IsAlive)
+        {
+            var button = new MenuButton("Open Marked Menu 3", "");
+            button.Activated += (sender, args) => this.OpenPlayerMenu(markedped3);
+            menuItems.Add(button);
+            Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedped3, true);
+        }
+        else
+        {
+            markedped3 = null;
         }
 
         var numerog = new MenuNumericScroller(("Switch Marked Ped"), "", 1, 3, 1, (curmarkped - 1));
@@ -376,41 +418,6 @@ public class danknet : Script
             var button = new MenuButton("Unmark", "");
             button.Activated += (sender, args) => this.UnMark();
             menuItems.Add(button);
-            if (markedvehicle1 != null && markedvehicle1.FriendlyName != "NULL" && markedvehicle1.Exists())
-            {
-                button = new MenuButton("Open Marked Menu 1", "");
-                button.Activated += (sender, args) => this.OpenVehicleMenu(markedvehicle1);
-                menuItems.Add(button);
-                Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedvehicle1, true);
-            }
-            else
-            {
-                markedvehicle1 = null;
-            }
-
-            if (markedvehicle2 != null && markedvehicle2.FriendlyName != "NULL" && markedvehicle2.Exists())
-            {
-                button = new MenuButton("Open Marked Menu 2", "");
-                button.Activated += (sender, args) => this.OpenVehicleMenu(markedvehicle2);
-                menuItems.Add(button);
-                Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedvehicle2, true);
-            }
-            else
-            {
-                markedvehicle2 = null;
-            }
-
-            if (markedvehicle3 != null && markedvehicle3.FriendlyName != "NULL" && markedvehicle3.Exists())
-            {
-                button = new MenuButton("Open Marked Menu 3", "");
-                button.Activated += (sender, args) => this.OpenVehicleMenu(markedvehicle3);
-                menuItems.Add(button);
-                Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedvehicle3, true);
-            }
-            else
-            {
-                markedvehicle3 = null;
-            }
         }
         else
         {
@@ -427,6 +434,41 @@ public class danknet : Script
             {
                 markedvehicle3 = markedvehicle;
             }
+        }
+        if (markedvehicle1 != null && markedvehicle1.FriendlyName != "NULL" && markedvehicle1.Exists())
+        {
+            var button = new MenuButton("Open Marked Menu 1", "");
+            button.Activated += (sender, args) => this.OpenVehicleMenu(markedvehicle1);
+            menuItems.Add(button);
+            Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedvehicle1, true);
+        }
+        else
+        {
+            markedvehicle1 = null;
+        }
+
+        if (markedvehicle2 != null && markedvehicle2.FriendlyName != "NULL" && markedvehicle2.Exists())
+        {
+            var button = new MenuButton("Open Marked Menu 2", "");
+            button.Activated += (sender, args) => this.OpenVehicleMenu(markedvehicle2);
+            menuItems.Add(button);
+            Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedvehicle2, true);
+        }
+        else
+        {
+            markedvehicle2 = null;
+        }
+
+        if (markedvehicle3 != null && markedvehicle3.FriendlyName != "NULL" && markedvehicle3.Exists())
+        {
+            var button = new MenuButton("Open Marked Menu 3", "");
+            button.Activated += (sender, args) => this.OpenVehicleMenu(markedvehicle3);
+            menuItems.Add(button);
+            Function.Call(Hash.SET_ENTITY_AS_MISSION_ENTITY, (Entity)markedvehicle3, true);
+        }
+        else
+        {
+            markedvehicle3 = null;
         }
 
         var numero = new MenuNumericScroller(("Switch Marked Vehicle"), "", 1, 3, 1, (curmark - 1));
@@ -875,7 +917,7 @@ public class danknet : Script
         var text = new MenuLabel("Made by Ardaozkal", true);
         menuItems.Add(text);
 
-        text = new MenuLabel("version 0.3", false);
+        text = new MenuLabel("version 0.4", false);
         menuItems.Add(text);
 
         text = new MenuLabel("Num 2 and 8 to scroll", false);
@@ -2392,12 +2434,201 @@ public class danknet : Script
         this.View.AddMenu(new Menu("(Vehicle) Spawn Menu", menuItems.ToArray()));
     }
 
-    private void OpenSpawnMenuObject()
+    void fromfileobject(string name)
+    {
+        if (File.Exists("scripts//" + name))
+        {
+            int no = 0;
+            int propname = 0;
+            Vector3 position = new Vector3();
+            Vector3 rotation = new Vector3();
+            bool dynamicc = false;
+
+            foreach (string str in File.ReadAllLines("scripts//" + name))
+            {
+                UI.Notify("Readen!");
+                no++;
+                if (no == 1)
+                {
+                    propname = int.Parse(str);
+                    UI.Notify("1!");
+                }
+                else if (no == 2)
+                {
+                    position.X = float.Parse(str);
+                    UI.Notify("2!");
+                }
+                else if (no == 3)
+                {
+                    position.Y = float.Parse(str);
+                    UI.Notify("3!");
+                }
+                else if (no == 4)
+                {
+                    position.Z = float.Parse(str);
+                    UI.Notify("4!");
+                }
+                else if (no == 5)
+                {
+                    rotation.X = float.Parse(str);
+                    UI.Notify("5!");
+                }
+                else if (no == 6)
+                {
+                    rotation.Y = float.Parse(str);
+                    UI.Notify("6!");
+                }
+                else if (no == 7)
+                {
+                    rotation.Z = float.Parse(str);
+                    UI.Notify("7!");
+                }
+                else if (no == 8)
+                {
+                    if (str.ToLower() == "true")
+                    {
+                        dynamicc = true;
+                    }
+                    else
+                    {
+                        dynamicc = false;
+                    }
+
+                    UI.Notify("8!");
+                    Prop idk = World.CreateProp(propname, position, true, false);
+                    idk.Rotation = rotation;
+                    idk.FreezePosition = !dynamicc;
+                    lastprop = idk;
+
+                    no = 0;
+                }
+            }
+
+            UI.Notify("Done!");
+        }
+        else
+        {
+            UI.Notify("That file wasn't found.");
+        }
+    }
+
+    Prop lastprop;
+
+    private void savelastprop(string name)
+    {
+        if (lastprop != null)
+        {
+            string content = "";
+
+            content += lastprop.Model.GetHashCode();
+            content += Environment.NewLine;
+            content += lastprop.Position.X;
+            content += Environment.NewLine;
+            content += lastprop.Position.Y;
+            content += Environment.NewLine;
+            content += lastprop.Position.Z - 0.8f;
+            content += Environment.NewLine;
+            content += lastprop.Rotation.X;
+            content += Environment.NewLine;
+            content += lastprop.Rotation.Y;
+            content += Environment.NewLine;
+            content += lastprop.Rotation.Z;
+            content += Environment.NewLine;
+            content += isdynamic;
+
+            File.WriteAllText(("scripts//" + name), content);
+        }
+    }
+
+    private void lastpropposset(Vector3 vec)
+    {
+        lastprop.Position = vec;
+    }
+
+    private void lastproprotset(Vector3 vec)
+    {
+        lastprop.Rotation = vec;
+    }
+
+    private void OpenLastPropMenu()
     {
         var menuItems = new List<IMenuItem>();
 
+        var button = new MenuButton("Save Last Prop", "Example Input:\nblabla.txt");
+        button.Activated += (sender, args) => this.savelastprop(Game.GetUserInput(25));
+        menuItems.Add(button);
+
+        var text = new MenuLabel("Position Set:", true);
+        menuItems.Add(text);
+
+        button = new MenuButton("+X", "");
+        button.Activated += (sender, args) => this.lastpropposset(lastprop.Position + new Vector3(0.1f, 0f, 0f));
+        menuItems.Add(button);
+
+        button = new MenuButton("-X", "");
+        button.Activated += (sender, args) => this.lastpropposset(lastprop.Position - new Vector3(0.1f, 0f, 0f));
+        menuItems.Add(button);
+
+        button = new MenuButton("+Y", "");
+        button.Activated += (sender, args) => this.lastpropposset(lastprop.Position + new Vector3(0f, 0.1f, 0f));
+        menuItems.Add(button);
+
+        button = new MenuButton("-Y", "");
+        button.Activated += (sender, args) => this.lastpropposset(lastprop.Position - new Vector3(0f, 0.1f, 0f));
+        menuItems.Add(button);
+
+        button = new MenuButton("+Z", "");
+        button.Activated += (sender, args) => this.lastpropposset(lastprop.Position + new Vector3(0f, 0f, 0.1f));
+        menuItems.Add(button);
+
+        button = new MenuButton("-Z", "");
+        button.Activated += (sender, args) => this.lastpropposset(lastprop.Position - new Vector3(0f, 0f, 0.1f));
+        menuItems.Add(button);
+
+        text = new MenuLabel("Rotation Set:", true);
+        menuItems.Add(text);
+
+        button = new MenuButton("+X", "");
+        button.Activated += (sender, args) => this.lastproprotset(lastprop.Rotation + new Vector3(0.1f, 0f, 0f));
+        menuItems.Add(button);
+
+        button = new MenuButton("-X", "");
+        button.Activated += (sender, args) => this.lastproprotset(lastprop.Rotation - new Vector3(0.1f, 0f, 0f));
+        menuItems.Add(button);
+
+        button = new MenuButton("+Y", "");
+        button.Activated += (sender, args) => this.lastproprotset(lastprop.Rotation + new Vector3(0f, 0.1f, 0f));
+        menuItems.Add(button);
+
+        button = new MenuButton("-Y", "");
+        button.Activated += (sender, args) => this.lastproprotset(lastprop.Rotation - new Vector3(0f, 0.1f, 0f));
+        menuItems.Add(button);
+
+        button = new MenuButton("+Z", "");
+        button.Activated += (sender, args) => this.lastproprotset(lastprop.Rotation + new Vector3(0f, 0f, 0.1f));
+        menuItems.Add(button);
+
+        button = new MenuButton("-Z", "");
+        button.Activated += (sender, args) => this.lastproprotset(lastprop.Rotation - new Vector3(0f, 0f, 0.1f));
+        menuItems.Add(button);
+
+        this.View.AddMenu(new Menu("Last Prop Menu", menuItems.ToArray()));
+    }
+
+    private void OpenSpawnMenuObject()
+    {
+        var menuItems = new List<IMenuItem>();
+        
         var button = new MenuButton("Custom Input", "Example Input:\n-1818980770");
         button.Activated += (sender, args) => this.spawnprop(((Model)(int.Parse(Game.GetUserInput(20)))), Game.Player.Character.Position, false, true, Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("From File", "Example Input:\nblabla.txt");
+        button.Activated += (sender, args) => this.fromfileobject(Game.GetUserInput(25));
+        menuItems.Add(button);
+
+        button = new MenuButton("Last Prop", "");
+        button.Activated += (sender, args) => this.OpenLastPropMenu();
         menuItems.Add(button);
 
         int numbr = 0;
@@ -2440,9 +2671,9 @@ public class danknet : Script
 
         if (curpage > 2) //3 or bigger
         {
-            View.RemoveMenu(lastmenu);
+            View.RemoveMenu(lastmenu2);
             var buttonm = new MenuButton(("Page " + (curpage - 1)), ("See page " + (curpage - 1)));
-            buttonm.Activated += (sender, args) => this.opentp2(curpage - 1);
+            buttonm.Activated += (sender, args) => this.openspawnprop2(curpage - 1);
             menuItems.Add(buttonm);
         }
 
@@ -2450,12 +2681,12 @@ public class danknet : Script
         int skipno = 0;
         foreach (string name in mdllist.Keys)
         {
-            if (skipno == (10 * (curpage - 1)))
+            if (skipno == (15 * (curpage - 1)))
             {
-                if (currentno == 10)
+                if (currentno == 15)
                 {
                     var buttonm = new MenuButton(("Page " + (curpage + 1)), ("See page " + (curpage + 1)));
-                    buttonm.Activated += (sender, args) => this.OpenTeleportMenu2(curpage + 1);
+                    buttonm.Activated += (sender, args) => this.OpenSpawnMenuObject2(curpage + 1);
                     menuItems.Add(buttonm);
                     break;
                 }
@@ -2477,15 +2708,116 @@ public class danknet : Script
         this.View.AddMenu(thismenu);
     }
 
+    private void OpenSpawnMenuPed()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Custom Input", "Example Input:\n-1818980770");
+        button.Activated += (sender, args) => this.spawnped(((Model)(int.Parse(Game.GetUserInput(20)))), Game.Player.Character.Position, Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        int numbr = 0;
+        foreach (string str in pedlist.Keys)
+        {
+            if (!(numbr == 15))
+            {
+                numbr++;
+                int blabla;
+                pedlist.TryGetValue(str, out blabla);
+
+                button = new MenuButton(str, blabla.ToString());
+                button.Activated += (sender, args) => this.spawnped(((Model)blabla), Game.Player.Character.Position, Game.Player.Character.Heading);
+                menuItems.Add(button);
+            }
+        }
+        if (numbr == 15)
+        {
+            button = new MenuButton("Page 2", "");
+            button.Activated += (sender, args) => this.openspawnped2(2);
+            menuItems.Add(button);
+        }
+        lastmenu3 = new Menu("(Ped) Spawn Menu", menuItems.ToArray());
+        this.View.AddMenu(lastmenu3);
+    }
+
+    private void openspawnped2(int page)
+    {
+        if (page == 2)
+        {
+            View.RemoveMenu(lastmenu3);
+        }
+        OpenSpawnMenuPed2(page);
+    }
+
+    Menu lastmenu3;
+    private void OpenSpawnMenuPed2(int curpage)
+    {
+        var menuItems = new List<IMenuItem>();
+
+        if (curpage > 2) //3 or bigger
+        {
+            View.RemoveMenu(lastmenu3);
+            var buttonm = new MenuButton(("Page " + (curpage - 1)), ("See page " + (curpage - 1)));
+            buttonm.Activated += (sender, args) => this.openspawnped2(curpage - 1);
+            menuItems.Add(buttonm);
+        }
+
+        int currentno = 0;
+        int skipno = 0;
+        foreach (string name in pedlist.Keys)
+        {
+            if (skipno == (15 * (curpage - 1)))
+            {
+                if (currentno == 15)
+                {
+                    var buttonm = new MenuButton(("Page " + (curpage + 1)), ("See page " + (curpage + 1)));
+                    buttonm.Activated += (sender, args) => this.OpenSpawnMenuPed2(curpage + 1);
+                    menuItems.Add(buttonm);
+                    break;
+                }
+                currentno++;
+                int mdll;
+                pedlist.TryGetValue(name, out mdll);
+
+                var button = new MenuButton(name, (mdll.ToString()));
+                button.Activated += (sender, args) => this.spawnped(((Model)mdll), Game.Player.Character.Position, Game.Player.Character.Heading);
+                menuItems.Add(button);
+            }
+            else
+            {
+                skipno++;
+            }
+        }
+        Menu thismenu = new Menu(("(Ped) Spawn Menu " + curpage), menuItems.ToArray());
+        lastmenu2 = thismenu;
+        this.View.AddMenu(thismenu);
+    }
+
+    private void spawnped(Model modelname, Vector3 pos)
+    {
+        World.CreatePed(modelname, pos);
+    }
+
+    private void spawnped(Model modelname, Vector3 pos, float heading)
+    {
+        World.CreatePed(modelname, pos, heading);
+    }
+    bool isdynamic;
     private void spawnprop(Model modelname, Vector3 pos, bool dynamic, bool placeonground)
     {
-        World.CreateProp(modelname, pos, dynamic, placeonground);
+        isdynamic = dynamic;
+        Prop idk = World.CreateProp(modelname, pos, dynamic, placeonground);
+        idk.FreezePosition = !dynamic;
+        lastprop = idk;
     }
 
     private void spawnprop(Model modelname, Vector3 pos, bool dynamic, bool placeonground, float heading)
     {
-        Prop idk = World.CreateProp(modelname, pos, dynamic, placeonground);
+        isdynamic = dynamic;
+        Prop idk = World.CreateProp(modelname, pos, true, placeonground);
         idk.Heading = heading;
+        idk.FreezePosition = !dynamic;
+        lastprop = idk;
     }
 
 
