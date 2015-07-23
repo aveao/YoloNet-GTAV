@@ -25,6 +25,8 @@ Do NOT use this online. Although there is no checks if you use this online or no
 
 *Skip to 2 if you have ScriptHookV, skip to 3 if you have both SHV.Net and SHV.*
 
+*OR just watch the video: http://youtu.be/JjGEEMcizwc*
+
 **1)** Download and install [ScriptHookV](http://www.dev-c.com/gtav/scripthookv/) (or if you keep not listening to me and want to use it online, [go here](http://www.se7ensins.com/forums/threads/gta-online-online-bypass-1-28-mod-menu-mega-thread-info-thread.1318313/))
 
 **2-1)** Download [ScriptHookVDotNet](https://github.com/crosire/scripthookvdotnet)'s latest release (available [here](https://github.com/crosire/scripthookvdotnet/releases)) / download current version's source code and compile (both will work, you pick.)
