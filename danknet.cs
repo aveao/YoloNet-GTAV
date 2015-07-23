@@ -2421,11 +2421,11 @@ public class danknet : Script
         if (numbr == 15)
         {
             button = new MenuButton("Page 2", "");
-            button.Activated += (sender, args) => this.spawnprop(((Model)(int.Parse(Game.GetUserInput(20)))), Game.Player.Character.Position, false, true, Game.Player.Character.Heading);
+            button.Activated += (sender, args) => this.openspawnprop2(2);
             menuItems.Add(button);
         }
-
-        this.View.AddMenu(new Menu("(Object) Spawn Menu", menuItems.ToArray()));
+        lastmenu2 = new Menu("(Object) Spawn Menu", menuItems.ToArray());
+        this.View.AddMenu(lastmenu2);
     }
 
     private void openspawnprop2(int page)
