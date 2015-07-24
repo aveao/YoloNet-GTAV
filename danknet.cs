@@ -40,6 +40,7 @@ public class danknet : Script
     bool opendoorgun = false;
     bool markgun = false;
     bool markgunped = false;
+    bool vehiclegun = false;
     Vehicle markedvehicle;
     Vehicle markedvehicle1;
     Vehicle markedvehicle2;
@@ -69,6 +70,9 @@ public class danknet : Script
     string tpfilename = "scripts\\danknettplist.txt";
     string mdlfilename = "scripts\\danknetmdllist.txt";
     string pedfilename = "scripts\\danknetpedlist.txt";
+    bool showfps = false;
+    string version = "v0.5";
+    string versionlink = "http://ardaozkal.github.io/danknetversion.txt";
 
     public danknet()
     {
@@ -76,7 +80,7 @@ public class danknet : Script
         this.View.MenuTransitions = true;
         Tick += OnTick;
         this.KeyDown += this.OnKeyDown;
-
+        CheckForUpdate();
         if (this.settings == null)
         {
             File.Create(configfile).Close();
@@ -212,10 +216,7 @@ public class danknet : Script
         {
             if (this.View.ActiveMenus == 0)
             {
-                if (!Function.Call<bool>(Hash.IS_DLC_PRESENT, -1762644250)) //checks if rockstar developer and doesn't open if developer
-                {
-                    this.OpenTrainerMenu();
-                }
+                this.OpenTrainerMenu();
             }
             else
             {
@@ -285,7 +286,28 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenAbout();
         menuItems.Add(button);
 
-        this.View.AddMenu(new Menu("Danknet Menu v0.3", menuItems.ToArray()));
+        this.View.AddMenu(new Menu(("Danknet Menu " + version), menuItems.ToArray()));
+    }
+
+    void CheckForUpdate()
+    {
+        try
+        {
+            System.Net.WebClient wc = new System.Net.WebClient();
+            string downloadedstring = wc.DownloadString(versionlink);
+            if (!downloadedstring.StartsWith(version)) //so we won't have windows 9, we will have windows 10.
+            {
+                UI.Notify("A new update is available, new version: " + downloadedstring);
+            }
+            else
+            {
+                UI.Notify("DankNet Menu is up to date");
+            }
+        }
+        catch
+        {
+            UI.Notify("Failed checking updates");
+        }
     }
 
     private void OpenPedMarkMenu()
@@ -704,7 +726,6 @@ public class danknet : Script
         };
         menuItems.Add(toggle);
 
-        //opendoorgun
         toggle = new MenuToggle("Heal gun", "ezpz heists", healgun);
         toggle.Changed += (sender, args) =>
         {
@@ -714,6 +735,18 @@ public class danknet : Script
                 return;
             }
             healgun = tg.Value;
+        };
+        menuItems.Add(toggle);
+
+        toggle = new MenuToggle("Vehicle gun", "Get Ready 4 lag", vehiclegun);
+        toggle.Changed += (sender, args) =>
+        {
+            var tg = sender as MenuToggle;
+            if (tg == null)
+            {
+                return;
+            }
+            vehiclegun = tg.Value;
         };
         menuItems.Add(toggle);
 
@@ -917,7 +950,7 @@ public class danknet : Script
         var text = new MenuLabel("Made by Ardaozkal", true);
         menuItems.Add(text);
 
-        text = new MenuLabel("version 0.3", false);
+        text = new MenuLabel(("version " + version), false);
         menuItems.Add(text);
 
         text = new MenuLabel("Num 2 and 8 to scroll", false);
@@ -928,6 +961,10 @@ public class danknet : Script
 
         text = new MenuLabel("Num 0 to go to prev menu", false);
         menuItems.Add(text);
+
+        var button = new MenuButton("Check for updates", "");
+        button.Activated += (sender, args) => this.CheckForUpdate();
+        menuItems.Add(button);
 
         this.View.AddMenu(new Menu("About & How to use", menuItems.ToArray()));
     }
@@ -2344,9 +2381,91 @@ public class danknet : Script
         this.View.AddMenu(new Menu("Spawn Menu (Boats)", menuItems.ToArray()));
     }
 
+    private void OpenTrailerSpawnMenu()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Spawn Army Trailer", "Empty");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.ArmyTrailer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Army Trailer 2", "Not Empty");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.ArmyTrailer2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Empty Vehicle Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.TR2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Full Vehicle Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.TR4, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Empty Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.TR3, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn TRFlat", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.TRFlat, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Bale Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.BaleTrailer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Boat Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.BoatTrailer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Dock Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.DockTrailer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Freight Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.FreightTrailer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Grain Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.GrainTrailer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Prop Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.PropTrailer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Rake Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.RakeTrailer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Tree Log Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.TrailerLogs, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Blue Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Trailers, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Trailer with Ad", "Clucking Bell, Pisswasser etc.");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Trailers2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Big Goods Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Trailers3, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Small Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.TrailerSmall, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Fame or Shame Trailer", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.TVTrailer, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        this.View.AddMenu(new Menu("Spawn Menu (Trailers)", menuItems.ToArray()));
+    }
+
     #endregion
-    //TODO: TRAILERS MENU start with trailer and tr.
-    //TODO: VEHICLE GUN! IsShooting ise yönünü alıp önünde araba spawnlayacak. Speedi de 1000 yapacak. (If you see this on Github, it is Turkish.)
+    //TODO: if BackButton Pressed: Goto last page as option.
     private void OpenSpawnMenuVehicle()
     {
         var menuItems = new List<IMenuItem>();
@@ -2427,6 +2546,10 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenBoatSpawnMenu();
         menuItems.Add(button);
 
+        button = new MenuButton("Trailers", "");
+        button.Activated += (sender, args) => this.OpenTrailerSpawnMenu();
+        menuItems.Add(button);
+
         button = new MenuButton("Special Vehicles", "");
         button.Activated += (sender, args) => this.OpenSpecialsSpawnMenu();
         menuItems.Add(button);
@@ -2446,42 +2569,34 @@ public class danknet : Script
 
             foreach (string str in File.ReadAllLines("scripts//" + name))
             {
-                UI.Notify("Readen!");
                 no++;
                 if (no == 1)
                 {
                     propname = int.Parse(str);
-                    UI.Notify("1!");
                 }
                 else if (no == 2)
                 {
                     position.X = float.Parse(str);
-                    UI.Notify("2!");
                 }
                 else if (no == 3)
                 {
                     position.Y = float.Parse(str);
-                    UI.Notify("3!");
                 }
                 else if (no == 4)
                 {
                     position.Z = float.Parse(str);
-                    UI.Notify("4!");
                 }
                 else if (no == 5)
                 {
                     rotation.X = float.Parse(str);
-                    UI.Notify("5!");
                 }
                 else if (no == 6)
                 {
                     rotation.Y = float.Parse(str);
-                    UI.Notify("6!");
                 }
                 else if (no == 7)
                 {
                     rotation.Z = float.Parse(str);
-                    UI.Notify("7!");
                 }
                 else if (no == 8)
                 {
@@ -2627,6 +2742,10 @@ public class danknet : Script
         button.Activated += (sender, args) => this.fromfileobject(Game.GetUserInput(25));
         menuItems.Add(button);
 
+        button = new MenuButton("From Objects.ini File", "Example Input:\nObjects.ini\nThis was added to help you get more creations");
+        button.Activated += (sender, args) => this.readobjectsini(Game.GetUserInput(25));
+        menuItems.Add(button);
+
         button = new MenuButton("Last Prop", "");
         button.Activated += (sender, args) => this.OpenLastPropMenu();
         menuItems.Add(button);
@@ -2713,7 +2832,7 @@ public class danknet : Script
         var menuItems = new List<IMenuItem>();
 
         var button = new MenuButton("Custom Input", "Example Input:\n-1818980770");
-        button.Activated += (sender, args) => this.spawnped(((Model)(int.Parse(Game.GetUserInput(20)))), Game.Player.Character.Position, Game.Player.Character.Heading);
+        button.Activated += (sender, args) => this.spawnped(((Model)(int.Parse(Game.GetUserInput(26)))), Game.Player.Character.Position, Game.Player.Character.Heading);
         menuItems.Add(button);
 
         int numbr = 0;
@@ -2740,6 +2859,90 @@ public class danknet : Script
         this.View.AddMenu(lastmenu3);
     }
 
+    private void OpenChangeModelMenu()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Custom Input", "Example Input:\n-1818980770");
+        button.Activated += (sender, args) => Function.Call(Hash.SET_PLAYER_MODEL, Game.Player, Game.GetUserInput(26));
+        menuItems.Add(button);
+
+        int numbr = 0;
+        foreach (string str in pedlist.Keys)
+        {
+            if (!(numbr == 15))
+            {
+                numbr++;
+                int blabla;
+                pedlist.TryGetValue(str, out blabla);
+
+                button = new MenuButton(str, blabla.ToString());
+                button.Activated += (sender, args) => Function.Call(Hash.SET_PLAYER_MODEL, Game.Player, blabla);
+                menuItems.Add(button);
+            }
+        }
+        if (numbr == 15)
+        {
+            button = new MenuButton("Page 2", "");
+            button.Activated += (sender, args) => this.openspawnped2(2);
+            menuItems.Add(button);
+        }
+        lastmenu4 = new Menu("Change Model Menu", menuItems.ToArray());
+        this.View.AddMenu(lastmenu4);
+    }
+    
+    private void openchangemodel2(int page)
+    {
+        if (page == 2)
+        {
+            View.RemoveMenu(lastmenu4);
+        }
+        OpenChangeModelMenu2(page);
+    }
+
+    Menu lastmenu4;
+    private void OpenChangeModelMenu2(int curpage)
+    {
+        var menuItems = new List<IMenuItem>();
+
+        if (curpage > 2) //3 or bigger
+        {
+            View.RemoveMenu(lastmenu4);
+            var buttonm = new MenuButton(("Page " + (curpage - 1)), ("See page " + (curpage - 1)));
+            buttonm.Activated += (sender, args) => this.openchangemodel2(curpage - 1);
+            menuItems.Add(buttonm);
+        }
+
+        int currentno = 0;
+        int skipno = 0;
+        foreach (string name in pedlist.Keys)
+        {
+            if (skipno == (15 * (curpage - 1)))
+            {
+                if (currentno == 15)
+                {
+                    var buttonm = new MenuButton(("Page " + (curpage + 1)), ("See page " + (curpage + 1)));
+                    buttonm.Activated += (sender, args) => this.openchangemodel2(curpage + 1);
+                    menuItems.Add(buttonm);
+                    break;
+                }
+                currentno++;
+                int mdll;
+                pedlist.TryGetValue(name, out mdll);
+
+                var button = new MenuButton(name, (mdll.ToString()));
+                button.Activated += (sender, args) => Function.Call(Hash.SET_PLAYER_MODEL, Game.Player, mdll);
+                menuItems.Add(button);
+            }
+            else
+            {
+                skipno++;
+            }
+        }
+        Menu thismenu = new Menu(("Change Model Menu " + curpage), menuItems.ToArray());
+        lastmenu4 = thismenu;
+        this.View.AddMenu(thismenu);
+    }
     private void openspawnped2(int page)
     {
         if (page == 2)
@@ -2789,7 +2992,7 @@ public class danknet : Script
             }
         }
         Menu thismenu = new Menu(("(Ped) Spawn Menu " + curpage), menuItems.ToArray());
-        lastmenu2 = thismenu;
+        lastmenu3 = thismenu;
         this.View.AddMenu(thismenu);
     }
 
@@ -3033,6 +3236,18 @@ public class danknet : Script
 
         if (playa == Game.Player.Character)
         {
+            toggle = new MenuToggle("Show FPS", "60fps ftw", showfps);
+            toggle.Changed += (sender, args) =>
+            {
+                var tg = sender as MenuToggle;
+                if (tg == null)
+                {
+                    return;
+                }
+                showfps = tg.Value;
+            };
+            menuItems.Add(toggle);
+            
             button = new MenuButton("Add SP money", "get rich m8");
             button.Activated += (sender, args) => this.GetRich();
             menuItems.Add(button);
@@ -3436,6 +3651,118 @@ public class danknet : Script
 	return iterationno;
     }
 
+    void readobjectsini(string fileloc)
+    {
+        bool donetp = false;
+        int current = 0;
+        Vector3 position = new Vector3();
+        int mdlhash = 0;
+        Quaternion rotation = new Quaternion();
+        Vector3 plctotpplayer = new Vector3();
+        bool dyn = false;
+
+        foreach (string str in File.ReadAllLines("scripts//" + fileloc))
+        {
+            current++;
+            if (!donetp)
+            {
+                if (current == 1)
+                {
+                    if (str != "[Player]")
+                    {
+                        donetp = true;
+                    }
+                    //do nothing, reads "[Player]"
+                }
+                else if (current == 2)
+                {
+                    if (str != "Teleport=1")
+                    {
+                        position.X = float.Parse(str.Replace("x=", "").Replace(".", ","));
+                        donetp = true;
+                    }
+                }
+                else if (current == 3)
+                {
+                    plctotpplayer.X = float.Parse(str.Replace("x=", "").Replace(".", ","));
+                }
+                else if (current == 4)
+                {
+                    plctotpplayer.Y = float.Parse(str.Replace("y=", "").Replace(".", ","));
+                }
+                else if (current == 5)
+                {
+                    plctotpplayer.Z = float.Parse(str.Replace("z=", "").Replace(".", ","));
+                    current = 0;
+                    Game.Player.Character.Position = plctotpplayer;
+                    donetp = true;
+                }
+            }
+            else
+            {
+                if (current == 1)
+                {
+                    //empty [1] etc
+                }
+                else if (current == 2)
+                {
+                    position.X = float.Parse(str.Replace("x=", "").Replace(".", ","));
+                }
+                else if (current == 3)
+                {
+                    position.Y = float.Parse(str.Replace("y=", "").Replace(".", ","));
+                }
+                else if (current == 4)
+                {
+                    position.Z = float.Parse(str.Replace("z=", "").Replace(".", ","));
+                }
+                else if (current == 5)
+                {
+                    //height
+                }
+                else if (current == 6)
+                {
+                    mdlhash = int.Parse(str.Replace("Model=", ""));
+                }
+                else if (current == 7)
+                {
+                    rotation.X = float.Parse(str.Replace("qx=", "").Replace(".", ","));
+                }
+                else if (current == 8)
+                {
+                    rotation.Y = float.Parse(str.Replace("qy=", "").Replace(".", ","));
+                }
+                else if (current == 9)
+                {
+                    rotation.Z = float.Parse(str.Replace("qz=", "").Replace(".", ","));
+                }
+                else if (current == 10)
+                {
+                    rotation.W = float.Parse(str.Replace("qw=", "").Replace(".", ","));
+                }
+                else if (current == 11)
+                {
+                    //offset z?
+                }
+                else if (current == 12)
+                {
+                    if (str == "Dynamic=0")
+                    {
+                        dyn = false;
+                    }
+                    else
+                    {
+                        dyn = true;
+                    }
+                    current = 0;
+                    Prop idkm8 = World.CreateProp(mdlhash, position, dyn, false);
+
+                    idkm8.Rotation = QuaternionToEulerAngles(rotation);
+                }
+            }
+        }
+    }
+
     void BreatheFire(Ped selectedPed)
     {
         Vector3 Mouth = Function.Call<Vector3>(Hash.GET_PED_BONE_COORDS, selectedPed, (int)Bone.SKEL_ROOT, 0.1f, 0.0f, 0.0f);
@@ -3467,6 +3794,25 @@ public class danknet : Script
     {
         float speed = (float)(((MenuNumericScroller)sender).Value + 1);
         car_go(curveh, speed);
+    }
+
+    // https://github.com/crosire/scripthookvdotnet/issues/263#event-364495345
+    //Source: http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm
+    public Vector3 QuaternionToEulerAngles(Quaternion q)
+    {
+        var t = q.X * q.Y + q.Z * q.W;
+        if (t > 0.499)
+        {
+            return new Vector3((float)(2 * System.Math.Atan2(q.X, q.W)), (float)(System.Math.PI / 2), 0);
+        }
+        else if (t < -0.499)
+        {
+            return new Vector3((float)(-2 * System.Math.Atan2(q.X, q.W)), (float)(-System.Math.PI / 2), 0);
+        }
+        else
+        {
+            return new Vector3((float)(System.Math.Atan2(2 * q.Y * q.W - 2 * q.X * q.Z, 1 - 2 * q.Y * q.Y - 2 * q.Z * q.Z)), (float)(System.Math.Asin(2 * t)), (float)(System.Math.Atan2(2 * q.X * q.W - 2 * q.Y * q.Z, 1 - 2 * q.X * q.X - 2 * q.Z * q.Z)));
+        }
     }
 
     void numero_Activated(object sender, MenuItemDoubleValueArgs e)
@@ -3988,6 +4334,12 @@ public class danknet : Script
             Game.Player.WantedLevel = 0;
         }
 
+        if (showfps)
+        {
+            UIText uIText = new UIText((Game.FPS.ToString()), new Point(10, 10), 0.4f, Color.Red);
+            uIText.Draw();
+        }
+
         Game.Player.Character.Weapons.Current.InfiniteAmmo = unlimited_ammo;
         Game.Player.Character.Weapons.Current.InfiniteAmmoClip = unlimited_ammo;
 
@@ -4081,6 +4433,24 @@ public class danknet : Script
                     }
                 }
                 //World.ShootBullet
+            }
+
+            if (vehiclegun && Game.Player.Character.IsShooting)
+            {
+                Game.Player.Character.FreezePosition = true;
+
+                //http://stackoverflow.com/questions/3132126/how-do-i-select-a-random-value-from-an-enumeration
+
+                Array values = Enum.GetValues(typeof(VehicleHash));
+                Random random = new Random();
+                VehicleHash randomVeh = (VehicleHash)values.GetValue(random.Next(values.Length));
+                //Zentorno only cuz randoms usually crash game
+                Vehicle createdveh = World.CreateVehicle(VehicleHash.Zentorno, Game.Player.Character.Position, Game.Player.Character.Heading);
+                createdveh.Speed = 1000;
+            }
+            else if (vehiclegun)
+            {
+                Game.Player.Character.FreezePosition = false;
             }
 
             if (markgun)
@@ -4246,8 +4616,8 @@ public class danknet : Script
         if (this.noclip)
         {
             int handle = character.Handle;
-            int ınt32 = this.speed - 1;
-            UIText uIText = new UIText(string.Concat("Speed: ", ınt32.ToString()), new Point(500, 50), 0.4f, Color.White);
+            int iint32 = this.speed - 1;
+            UIText uIText = new UIText(string.Concat("Speed: ", iint32.ToString()), new Point(500, 50), 0.4f, Color.White);
             uIText.Draw();
             Vector3 offsetInWorldCoords = character.GetOffsetInWorldCoords(new Vector3(0f, (float)(this.speed + this.helpup), 0f));
             Vector3 vector3 = character.GetOffsetInWorldCoords(new Vector3(0f, (float)(-this.speed - this.helpdown), 0f));
@@ -4366,15 +4736,13 @@ public class danknet : Script
         #endregion
     }
 
-    void rainmoney(int amount)
+    void rainmoney()
     {
         UI.Notify("WARNING! DO NOT USE THIS FUNCTION IN ONLINE.", true);
-        for (int i = 0; i <= 1000; i++)
-        {
-            Hash moneypickup = Function.Call<Hash>(Hash.GET_HASH_KEY, "PICKUP_MONEY_CASE");
-            InputArgument[] stuff = { moneypickup.ToString(), Game.Player.Character.Position.X, Game.Player.Character.Position.Y, (Game.Player.Character.Position.Z + 0.5f), 0, 40000, 0x113FD533, false, true };
-            Function.Call(Hash.CREATE_AMBIENT_PICKUP, stuff);
-        }
+        Hash moneypickup = Function.Call<Hash>(Hash.GET_HASH_KEY, "PICKUP_MONEY_CASE");
+        //http://ecb2.biz/releases/GTAV/lists/pickups.txt
+        InputArgument[] stuff = { moneypickup.ToString(), Game.Player.Character.Position.X, Game.Player.Character.Position.Y, (Game.Player.Character.Position.Z + 0.5f), 0, 40000, 289396019, false, true };
+        Function.Call(Hash.CREATE_AMBIENT_PICKUP, stuff);
     }
 
     private void DoUnlockAllWeapons()
