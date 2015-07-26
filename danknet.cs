@@ -41,6 +41,8 @@ public class danknet : Script
     bool markgun = false;
     bool markgunped = false;
     bool vehiclegun = false;
+    bool pedmarkgun = false;
+    bool objmarkgun = false;
     Vehicle markedvehicle;
     Vehicle markedvehicle1;
     Vehicle markedvehicle2;
@@ -60,19 +62,26 @@ public class danknet : Script
     bool featureWeaponFireAmmo = false;
     bool featureWeaponExplosiveAmmo = false;
     bool featureWeaponExplosiveMelee = false;
+    List<Ped> pedsrainingmoney = new List<Ped>();
+    List<Ped> pedsrainingminusmoney = new List<Ped>();
     Vector3 tpfactor = new Vector3(0f, 0f, 3f);
     string configfile = "scripts\\danknetmenu.txt";
     private ScriptSettings settings;
     private Dictionary<Vector3, string> tplist = new Dictionary<Vector3, string>();
     private Dictionary<string, int> mdllist = new Dictionary<string, int>();
     private Dictionary<string, int> pedlist = new Dictionary<string, int>();
+    private Dictionary<string, int> pickuplist = new Dictionary<string, int>();
     string sectionname = "DANKNETMENU";
     string tpfilename = "scripts\\danknettplist.txt";
     string mdlfilename = "scripts\\danknetmdllist.txt";
     string pedfilename = "scripts\\danknetpedlist.txt";
+    string pickupfilename = "scripts\\danknetpickuplist.txt";
     bool showfps = false;
-    string version = "v0.5";
+    string version = "v0.6"; 
     string versionlink = "http://ardaozkal.github.io/danknetversion.txt";
+    bool islatestversion = true;
+    string lastversion;
+    bool isontestmode = false;
 
     public danknet()
     {
@@ -81,6 +90,13 @@ public class danknet : Script
         Tick += OnTick;
         this.KeyDown += this.OnKeyDown;
         CheckForUpdate();
+
+        if (File.Exists("scripts//danknet.dev"))
+        {
+            //testmode is debug mode, you don't need to use it.
+            isontestmode = true;
+        }
+
         if (this.settings == null)
         {
             File.Create(configfile).Close();
@@ -173,6 +189,41 @@ public class danknet : Script
             File.Create(mdlfilename).Close();
         }
 
+        if (File.Exists(pickupfilename))
+        {
+            List<string> readen = new List<string>();
+            readen.AddRange(File.ReadAllLines(pickupfilename)); //name newline int of model
+
+            string nagme = ""; //name
+            int mdlno;
+            int no = 0;
+            foreach (string readed in readen)
+            {
+                no++;
+                try
+                {
+                    if (no == 1)
+                    {
+                        nagme = readed;
+                    }
+                    else if (no == 2)
+                    {
+                        mdlno = int.Parse(readed);
+                        no = 0;
+                        pickuplist.Add(nagme, mdlno);
+                    }
+                }
+                catch
+                {
+                    //this one is dangerous, file with bad format can crash script.
+                }
+            }
+        }
+        else
+        {
+            File.Create(pickupfilename).Close();
+        }
+
 
         if (File.Exists(pedfilename))
         {
@@ -234,6 +285,16 @@ public class danknet : Script
     {
         var menuItems = new List<IMenuItem> { };
         //add stuff here
+        if (!islatestversion)
+        {
+            UI.Notify("A new update is available, new version: " + lastversion);
+        }
+
+        if (isontestmode)
+        {
+            UI.Notify("Konichiwa Aruda-kun~!");
+        }
+
         var button = new MenuButton("Player Menu", "TODO:EDIT THIS");
         button.Activated += (sender, args) => this.OpenPlayerMenu(Game.Player.Character);
         menuItems.Add(button);
@@ -248,6 +309,10 @@ public class danknet : Script
 
         button = new MenuButton("(Ped) Spawn Menu", "TODO:EDIT THIS");
         button.Activated += (sender, args) => this.OpenSpawnMenuPed();
+        menuItems.Add(button);
+
+        button = new MenuButton("(Pickup) Spawn Menu", "Money and Railgun, \nwe have them all");
+        button.Activated += (sender, args) => this.OpenSpawnMenuPickup();
         menuItems.Add(button);
 
         button = new MenuButton("Weapon Menu", "TODO:EDIT THIS");
@@ -298,15 +363,18 @@ public class danknet : Script
             if (!downloadedstring.StartsWith(version)) //so we won't have windows 9, we will have windows 10.
             {
                 UI.Notify("A new update is available, new version: " + downloadedstring);
+                islatestversion = false;
+                lastversion = downloadedstring;
             }
             else
             {
                 UI.Notify("DankNet Menu is up to date");
+                islatestversion = true;
             }
         }
         catch
         {
-            UI.Notify("Failed checking updates");
+            UI.Notify("Failed checking updates. Check your internet. (It might be on my side too tho.)");
         }
     }
 
@@ -738,7 +806,7 @@ public class danknet : Script
         };
         menuItems.Add(toggle);
 
-        toggle = new MenuToggle("Vehicle gun", "Get Ready 4 lag", vehiclegun);
+        toggle = new MenuToggle("Vehicle gun", "Get Ready 4 lag\nDon't use in a vehicle \nor you'll fly", vehiclegun);
         toggle.Changed += (sender, args) =>
         {
             var tg = sender as MenuToggle;
@@ -763,7 +831,8 @@ public class danknet : Script
         List<VehicleColor> colorlist = new List<VehicleColor>();
         colorlist.AddRange((IEnumerable<VehicleColor>)Enum.GetValues(typeof(VehicleColor)));
         List<string> colornamelist = new List<string>();
-        int clrno = 0;
+        int clrno = 1;
+        int prlno = 1;
         int crntno = 0;
         foreach (VehicleColor clr in colorlist)
         {
@@ -772,12 +841,20 @@ public class danknet : Script
             {
                 clrno = crntno;
             }
+            if (veh.PearlescentColor.ToString() == clr.ToString())
+            {
+                prlno = crntno;
+            }
             colornamelist.Add(clr.ToString());
         }
 
         var enumm = new MenuEnumScroller("Color", "Chrome, Epsilon, we have all", colornamelist.ToArray(), (clrno - 1));
         enumm.Activated += enumm_Activated;
         menuItems.Add(enumm);
+
+        var enumm2 = new MenuEnumScroller("Pearlescent", "Chrome, Epsilon, we have all", colornamelist.ToArray(), (prlno - 1));
+        enumm2.Activated += enumm2_Activated;
+        menuItems.Add(enumm2);
 
         var button = new MenuButton("RGB car primary color", "First r, then g and then b");
         button.Activated += (sender, args) => this.rgbcarprimcolor(veh);
@@ -799,6 +876,14 @@ public class danknet : Script
         button.Activated += (sender, args) => this.rgbcarclean(veh);
         menuItems.Add(button);
 
+        //button = new MenuButton("Save Car To file", "ex input: idkrly.txt");
+        //button.Activated += (sender, args) => this.SaveCarToFile(veh, Game.GetUserInput(26));
+        //menuItems.Add(button);
+        //http://i1.kym-cdn.com/photos/images/newsfeed/000/232/114/e39.png
+        //button = new MenuButton("Load Car From file", "ex input: idkrly.txt");
+        //button.Activated += (sender, args) => this.LoadCarFromFile(Game.GetUserInput(26));
+        //menuItems.Add(button);
+        
         button = new MenuButton("Open All Doors", "titan ftw");
         button.Activated += (sender, args) => this.Dooropen(veh);
         menuItems.Add(button);
@@ -851,6 +936,12 @@ public class danknet : Script
         {
             this.View.AddMenu(new Menu(("Vehicle Menu (" + veh.FriendlyName + ")"), menuItems.ToArray()));
         }
+    }
+
+    void enumm2_Activated(object sender, MenuItemIndexArgs e)
+    {
+        VehicleColor selcolor = (VehicleColor)Enum.GetValues(typeof(VehicleColor)).GetValue(e.Index);
+        this.changecolor(curveh, selcolor);
     }
 
     private void OpenVehicleTPMenu(Vehicle veh)
@@ -2738,6 +2829,21 @@ public class danknet : Script
         button.Activated += (sender, args) => this.spawnprop(((Model)(int.Parse(Game.GetUserInput(20)))), Game.Player.Character.Position, false, true, Game.Player.Character.Heading);
         menuItems.Add(button);
 
+        if (isontestmode)
+        {
+            var toggle = new MenuToggle("Object Mark gun", "Saves the ped you aim at", objmarkgun);
+            toggle.Changed += (sender, args) =>
+            {
+                var tg = sender as MenuToggle;
+                if (tg == null)
+                {
+                    return;
+                }
+                objmarkgun = tg.Value;
+            };
+            menuItems.Add(toggle);
+        }
+
         button = new MenuButton("From File", "Example Input:\nblabla.txt");
         button.Activated += (sender, args) => this.fromfileobject(Game.GetUserInput(25));
         menuItems.Add(button);
@@ -2835,6 +2941,21 @@ public class danknet : Script
         button.Activated += (sender, args) => this.spawnped(((Model)(int.Parse(Game.GetUserInput(26)))), Game.Player.Character.Position, Game.Player.Character.Heading);
         menuItems.Add(button);
 
+        if (isontestmode)
+        {
+            var toggle = new MenuToggle("Ped Mark gun", "Saves the ped you aim at", pedmarkgun);
+            toggle.Changed += (sender, args) =>
+            {
+                var tg = sender as MenuToggle;
+                if (tg == null)
+                {
+                    return;
+                }
+                pedmarkgun = tg.Value;
+            };
+            menuItems.Add(toggle);
+        }
+
         int numbr = 0;
         foreach (string str in pedlist.Keys)
         {
@@ -2857,6 +2978,91 @@ public class danknet : Script
         }
         lastmenu3 = new Menu("(Ped) Spawn Menu", menuItems.ToArray());
         this.View.AddMenu(lastmenu3);
+    }
+
+    private void OpenSpawnMenuPickup()
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton("Custom Input", "Example Input:\n-1818980770");
+        button.Activated += (sender, args) => this.spawnpickup(((Model)(int.Parse(Game.GetUserInput(26)))), Game.Player.Character.Position);
+        menuItems.Add(button);
+
+        int numbr = 0;
+        foreach (string str in pickuplist.Keys)
+        {
+            if (!(numbr == 15))
+            {
+                numbr++;
+                int blabla;
+                pickuplist.TryGetValue(str, out blabla);
+
+                button = new MenuButton(str, blabla.ToString());
+                button.Activated += (sender, args) => this.spawnpickup(((Model)blabla), Game.Player.Character.Position);
+                menuItems.Add(button);
+            }
+        }
+        if (numbr == 15)
+        {
+            button = new MenuButton("Page 2", "");
+            button.Activated += (sender, args) => this.openspawnpickup2(2);
+            menuItems.Add(button);
+        }
+        lastmenu5 = new Menu("(Pickup) Spawn Menu", menuItems.ToArray());
+        this.View.AddMenu(lastmenu5);
+    }
+
+    private void openspawnpickup2(int page)
+    {
+        if (page == 2)
+        {
+            View.RemoveMenu(lastmenu5);
+        }
+        OpenSpawnMenuPickup2(page);
+    }
+
+    Menu lastmenu5;
+    private void OpenSpawnMenuPickup2(int curpage)
+    {
+        var menuItems = new List<IMenuItem>();
+
+        if (curpage > 2) //3 or bigger
+        {
+            View.RemoveMenu(lastmenu5);
+            var buttonm = new MenuButton(("Page " + (curpage - 1)), ("See page " + (curpage - 1)));
+            buttonm.Activated += (sender, args) => this.openspawnpickup2(curpage - 1);
+            menuItems.Add(buttonm);
+        }
+
+        int currentno = 0;
+        int skipno = 0;
+        foreach (string name in pickuplist.Keys)
+        {
+            if (skipno == (15 * (curpage - 1)))
+            {
+                if (currentno == 15)
+                {
+                    var buttonm = new MenuButton(("Page " + (curpage + 1)), ("See page " + (curpage + 1)));
+                    buttonm.Activated += (sender, args) => this.OpenSpawnMenuPickup2(curpage + 1);
+                    menuItems.Add(buttonm);
+                    break;
+                }
+                currentno++;
+                int mdll;
+                pickuplist.TryGetValue(name, out mdll);
+
+                var button = new MenuButton(name, (mdll.ToString()));
+                button.Activated += (sender, args) => this.spawnpickup(((Model)mdll), Game.Player.Character.Position);
+                menuItems.Add(button);
+            }
+            else
+            {
+                skipno++;
+            }
+        }
+        Menu thismenu = new Menu(("(Pickup) Spawn Menu " + curpage), menuItems.ToArray());
+        lastmenu5 = thismenu;
+        this.View.AddMenu(thismenu);
     }
 
     private void OpenChangeModelMenu()
@@ -3022,10 +3228,6 @@ public class danknet : Script
         idk.FreezePosition = !dynamic;
         lastprop = idk;
     }
-
-
-    //TODO: Spawn Ramps and stuff. Ability to load from txt.
-    //^Do not do until further notice
 
     //TODO: Player Models
     //LPCSTR animalModels[] = { "a_c_boar", "a_c_chimp", "a_c_cow", "a_c_coyote", "a_c_deer", "a_c_fish", "a_c_hen", "a_c_cat_01", "a_c_chickenhawk","a_c_cormorant", "a_c_crow", "a_c_dolphin", "a_c_humpback", "a_c_killerwhale", "a_c_pigeon", "a_c_seagull", "a_c_sharkhammer","a_c_pig", "a_c_rat", "a_c_rhesus", "a_c_chop", "a_c_husky", "a_c_mtlion", "a_c_retriever", "a_c_sharktiger", "a_c_shepherd" };
@@ -3196,7 +3398,46 @@ public class danknet : Script
         button.Activated += (sender, args) => this.Unfreeze(playa);
         menuItems.Add(button);
 
-        var toggle = new MenuToggle("Godmode", "U cant die m8", isinv);
+        var toggle = new MenuToggle("Moneeeeh Rain", "Paper Planes\nRich peds!", pedsrainingmoney.Contains(playa));
+        toggle.Changed += (sender, args) =>
+        {
+            var tg = sender as MenuToggle;
+            if (tg == null)
+            {
+                return;
+            }
+            if (tg.Value)
+            {
+                pedsrainingmoney.Add(playa);
+            }
+            else
+            {
+                pedsrainingmoney.Remove(playa);
+            }
+        };
+        menuItems.Add(toggle);
+
+        //toggle = new MenuToggle("Minus Money Rain", "Poor peds!", pedsrainingminusmoney.Contains(playa));
+        //toggle.Changed += (sender, args) =>
+        //{
+        //    var tg = sender as MenuToggle;
+        //    if (tg == null)
+        //    {
+        //        return;
+        //    }
+            
+        //    if (tg.Value)
+        //    {
+        //        pedsrainingminusmoney.Add(playa);
+        //    }
+        //    else
+        //    {
+        //        pedsrainingminusmoney.Remove(playa);
+        //    }
+        //};
+        //menuItems.Add(toggle);
+
+        toggle = new MenuToggle("Godmode", "U cant die m8", isinv);
         toggle.Changed += (sender, args) =>
         {
             var tg = sender as MenuToggle;
@@ -4251,6 +4492,11 @@ public class danknet : Script
         veh.SecondaryColor = vehcolor;
     }
 
+    private void changepearlescent(Vehicle veh, VehicleColor vehcolor)
+    {
+        veh.PearlescentColor = vehcolor;
+    }
+
     private void changeplate(Vehicle veh)
     {
         veh.NumberPlate = Game.GetUserInput(9); //8+1
@@ -4329,6 +4575,16 @@ public class danknet : Script
 
     void OnTick(object sender, EventArgs e)
     {
+        foreach (Ped pd in pedsrainingmoney)
+        {
+            rainmoney(pd.Position); //right in middle
+        }
+
+        foreach (Ped pd in pedsrainingminusmoney)
+        {
+            rainminusmoney(pd.Position); //right in middle
+        }
+
         if (never_wanted)
         {
             Game.Player.WantedLevel = 0;
@@ -4487,6 +4743,44 @@ public class danknet : Script
                     markgun = false;
                     View.RemoveMenu(Markmenu);
                     OpenVehicleMarkMenu();
+                }
+            }
+
+            if (objmarkgun)
+            {
+                if (Game.Player.GetTargetedEntity().Exists())
+                {
+                    string txt = File.ReadAllText(mdlfilename);
+                    if (txt != "")
+                    {
+                        txt += Environment.NewLine;
+                    }
+                    string name = Game.GetUserInput(21) + " ";
+                    int hashcode = Game.Player.GetTargetedEntity().GetHashCode();
+                    txt += name + Environment.NewLine;
+                    txt += hashcode;
+                    File.WriteAllText(mdlfilename, txt);
+                    mdllist.Add(name, hashcode);
+                    objmarkgun = false;
+                }
+            }
+
+            if (pedmarkgun)
+            {
+                if (Game.Player.GetTargetedEntity().Exists() && Game.Player.GetTargetedEntity().Model.IsPed)
+                {
+                    string txt = File.ReadAllText(pedfilename);
+                    if (txt != "")
+                    {
+                        txt += Environment.NewLine;
+                    }
+                    string name = Game.GetUserInput(21) + " ";
+                    int hashcode = Game.Player.GetTargetedEntity().GetHashCode();
+                    txt += name + Environment.NewLine;
+                    txt += hashcode;
+                    File.WriteAllText(mdlfilename, txt);
+                    pedlist.Add(name, hashcode);
+                    objmarkgun = false;
                 }
             }
 
@@ -4736,12 +5030,29 @@ public class danknet : Script
         #endregion
     }
 
-    void rainmoney()
+    void rainmoney(Vector3 where)
     {
         UI.Notify("WARNING! DO NOT USE THIS FUNCTION IN ONLINE.", true);
-        Hash moneypickup = Function.Call<Hash>(Hash.GET_HASH_KEY, "PICKUP_MONEY_CASE");
+        int moneypickup = Function.Call<int>(Hash.GET_HASH_KEY, "PICKUP_MONEY_CASE");
         //http://ecb2.biz/releases/GTAV/lists/pickups.txt
-        InputArgument[] stuff = { moneypickup.ToString(), Game.Player.Character.Position.X, Game.Player.Character.Position.Y, (Game.Player.Character.Position.Z + 0.5f), 0, 40000, 289396019, false, true };
+        InputArgument[] stuff = { moneypickup, where.X, where.Y, where.Z, 0, (new Random()).Next(0, 40000), 289396019, false, true };
+        Function.Call(Hash.CREATE_AMBIENT_PICKUP, stuff);
+    }
+
+    void rainminusmoney(Vector3 where)
+    {
+        UI.Notify("WARNING! DO NOT USE THIS FUNCTION IN ONLINE.", true);
+        int moneypickup = Function.Call<int>(Hash.GET_HASH_KEY, "PICKUP_MONEY_CASE");
+        //http://ecb2.biz/releases/GTAV/lists/pickups.txt
+        InputArgument[] stuff = { moneypickup, where.X, where.Y, where.Z, 0, (new Random()).Next(-40000, 1), 289396019, false, true };
+        Function.Call(Hash.CREATE_AMBIENT_PICKUP, stuff);
+    }
+
+    private void spawnpickup(Model modelname, Vector3 pos)
+    {
+        //http://ecb2.biz/releases/GTAV/lists/pickups.txt
+        //https://wiki.gta-mp.net/index.php/Weapons + http://www.binaryhexconverter.com/hex-to-decimal-converter
+        InputArgument[] stuff = { modelname, pos.X, pos.Y, pos.Z, 0, 1, 289396019, false, true };
         Function.Call(Hash.CREATE_AMBIENT_PICKUP, stuff);
     }
 
@@ -4771,6 +5082,349 @@ public class danknet : Script
     private void FixRide(Vehicle vehicle)
     {
         vehicle.Repair();
+    }
+
+    private void SaveCarToFile(Vehicle veh, string name)
+    {
+        if (!Directory.Exists("scripts//danknetvehiclefiles//"))
+        {
+            Directory.CreateDirectory("scripts//danknetvehiclefiles//");
+            //if it doesn't exist, make it
+        }
+        if (File.Exists("scripts//danknetvehiclefiles//" + name))
+        {
+            if (name.EndsWith(")"))
+            {
+                string oldnumber = name.Substring(name.IndexOf("("), (name.IndexOf(")") - name.IndexOf("(")));
+
+                SaveCarToFile(veh, (name + "(" + (int.Parse(oldnumber) + 1) + ")"));
+                //this is just me showing my dev skills, if it was already marked as (2), next will be (3), then (4), and going on.
+            }
+            else
+            {
+                SaveCarToFile(veh, (name + "(2)"));
+            }
+        }
+        else
+        {
+            string tosave = "";
+            tosave += veh.GetHashCode() + Environment.NewLine;
+            tosave += veh.BodyHealth + Environment.NewLine;
+            tosave += veh.CanTiresBurst + Environment.NewLine;
+            tosave += veh.IsPrimaryColorCustom + Environment.NewLine;
+            tosave += veh.CustomPrimaryColor + Environment.NewLine;
+            tosave += veh.IsSecondaryColorCustom + Environment.NewLine;
+            tosave += veh.CustomSecondaryColor + Environment.NewLine;
+            tosave += veh.EngineHealth + Environment.NewLine;
+            tosave += veh.Health + Environment.NewLine;
+            tosave += veh.LightsOn + Environment.NewLine;
+            tosave += veh.Livery + Environment.NewLine;
+            tosave += veh.NeonLightsColor + Environment.NewLine;
+            tosave += veh.PearlescentColor + Environment.NewLine;
+            tosave += veh.PetrolTankHealth + Environment.NewLine;
+            tosave += veh.PrimaryColor + Environment.NewLine;
+            tosave += veh.RimColor + Environment.NewLine;
+            tosave += veh.RoofState + Environment.NewLine;
+            tosave += veh.SearchLightOn + Environment.NewLine;
+            tosave += veh.SecondaryColor + Environment.NewLine;
+            tosave += veh.SirenActive + Environment.NewLine;
+            tosave += veh.TaxiLightOn + Environment.NewLine;
+            tosave += veh.TireSmokeColor + Environment.NewLine;
+            tosave += veh.WheelType + Environment.NewLine;
+            tosave += veh.WindowTint + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Armor) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.BackWheels) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Brakes) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Engine) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Exhaust) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Fender) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Frame) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.FrontBumper) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.FrontWheels) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Grille) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Hood) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Horns) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.RearBumper) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.RightFender) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Roof) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.SideSkirt) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Spoilers) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Suspension) + Environment.NewLine;
+            tosave += veh.GetMod(VehicleMod.Transmission) + Environment.NewLine;
+            tosave += veh.IsToggleModOn(VehicleToggleMod.TireSmoke) + Environment.NewLine;
+            tosave += veh.IsToggleModOn(VehicleToggleMod.Turbo) + Environment.NewLine;
+            tosave += veh.IsToggleModOn(VehicleToggleMod.XenonHeadlights) + Environment.NewLine;
+            File.Create("scripts//danknetvehiclefiles//" + name).Close();
+            File.WriteAllText(("scripts//danknetvehiclefiles//" + name), tosave);
+            //TODO: Add objects to object and peds to ped list by aiming. object.GetHashCode().
+        }
+    }
+
+    private void LoadCarFromFile(string name)
+    {
+        if (File.Exists("scripts//danknetvehiclefiles//" + name))
+        {
+            List<string> spawnedvehtoload = new List<string>();
+            spawnedvehtoload.AddRange(File.ReadAllLines("scripts//danknetvehiclefiles//" + name));
+            int curon = 0;
+            Vehicle spawnedveh = Game.Player.LastVehicle; //just to unbug
+            bool IsPrimaryColorCustom = false;
+            bool IsSecondaryColorCustom = false;
+            foreach (string spawnedvehoption in spawnedvehtoload)
+            {
+                curon++;
+                UI.Notify(spawnedvehoption);
+                if (curon == 1)
+                {
+                    //spawnedveh = World.CreateVehicle(((Model)int.Parse(spawnedvehoption)), Game.Player.Character.Position + new Vector3(0, 0, 2f));
+                }
+                if (curon == 2)
+                {
+                    spawnedveh.BodyHealth = float.Parse(spawnedvehoption);
+                }
+                else if (curon == 3)
+                {
+                    spawnedveh.CanTiresBurst = (spawnedvehoption.ToLower() == "false") ? false : true;
+                }
+                else if (curon == 4)
+                {
+                    IsPrimaryColorCustom = (spawnedvehoption.ToLower() == "false") ? false : true;
+                }
+                else if (curon == 5 && IsPrimaryColorCustom)
+                {
+                    //Color [A=255, R=231, G=213, B=42]
+                    int red = int.Parse(spawnedvehoption.Substring((spawnedvehoption.IndexOf("R=") + 2), 3).Replace(",", "").Replace(" ", ""));
+                    int green = int.Parse(spawnedvehoption.Substring((spawnedvehoption.IndexOf("G=") + 2), 3).Replace(",", "").Replace(" ", ""));
+                    int blue = int.Parse(spawnedvehoption.Substring((spawnedvehoption.IndexOf("B=") + 2), (spawnedvehoption.Length - (spawnedvehoption.IndexOf("B=") + 3))).Replace(",", "").Replace(" ", ""));
+                    spawnedveh.CustomPrimaryColor = Color.FromArgb(red, green, blue);
+                }
+                else if (curon == 6)
+                {
+                    IsSecondaryColorCustom = (spawnedvehoption.ToLower() == "false") ? false : true;
+                }
+                else if (curon == 7 && IsSecondaryColorCustom)
+                {
+                    //Color [A=255, R=231, G=213, B=42]
+                    int red = int.Parse(spawnedvehoption.Substring((spawnedvehoption.IndexOf("R=") + 2), 3).Replace(",", "").Replace(" ", ""));
+                    int green = int.Parse(spawnedvehoption.Substring((spawnedvehoption.IndexOf("G=") + 2), 3).Replace(",", "").Replace(" ", ""));
+                    int blue = int.Parse(spawnedvehoption.Substring((spawnedvehoption.IndexOf("B=") + 2), (spawnedvehoption.Length - (spawnedvehoption.IndexOf("B=") + 3))).Replace(",", "").Replace(" ", ""));
+                    spawnedveh.CustomSecondaryColor = Color.FromArgb(red, green, blue);
+                }
+                else if (curon == 8)
+                {
+                    spawnedveh.EngineHealth = float.Parse(spawnedvehoption);
+                }
+                else if (curon == 9)
+                {
+                    spawnedveh.Health = int.Parse(spawnedvehoption);
+                }
+                else if (curon == 10)
+                {
+                    spawnedveh.LightsOn = (spawnedvehoption.ToLower() == "false") ? false : true;
+                }
+                else if (curon == 11)
+                {
+                    spawnedveh.Livery = int.Parse(spawnedvehoption);
+                }
+                else if (curon == 12)
+                {
+                    //Color [A=255, R=231, G=213, B=42]
+
+                    int red = int.Parse(spawnedvehoption.Substring((spawnedvehoption.IndexOf("R=") + 2), 3).Replace(",", "").Replace(" ", ""));
+                    int green = int.Parse(spawnedvehoption.Substring((spawnedvehoption.IndexOf("G=") + 2), 3).Replace(",", "").Replace(" ", ""));
+                    int blue = int.Parse(spawnedvehoption.Substring((spawnedvehoption.IndexOf("B=") + 2), (spawnedvehoption.Length - (spawnedvehoption.IndexOf("B=") + 3))).Replace(",", "").Replace(" ", "")); 
+                    spawnedveh.NeonLightsColor = Color.FromArgb(red, green, blue);
+                }
+                else if (curon == 13)
+                {
+                    foreach (VehicleColor clr in Enum.GetValues(typeof(VehicleColor)))
+                    {
+                        if (spawnedvehoption == clr.ToString())
+                        {
+                            spawnedveh.PearlescentColor = clr;
+                            break;
+                        }
+                    }
+                }
+                else if (curon == 14)
+                {
+                    spawnedveh.PetrolTankHealth = float.Parse(spawnedvehoption);
+                }
+                else if (curon == 15)
+                {
+                    foreach (VehicleColor clr in Enum.GetValues(typeof(VehicleColor)))
+                    {
+                        if (spawnedvehoption == clr.ToString())
+                        {
+                            spawnedveh.PrimaryColor = clr;
+                            break;
+                        }
+                    }
+                }
+                else if (curon == 16)
+                {
+                    foreach (VehicleColor clr in Enum.GetValues(typeof(VehicleColor)))
+                    {
+                        if (spawnedvehoption == clr.ToString())
+                        {
+                            spawnedveh.RimColor = clr;
+                            break;
+                        }
+                    }
+                }
+                else if (curon == 17)
+                {
+                    spawnedveh.RoofState = (spawnedvehoption.StartsWith("Clos")) ? VehicleRoofState.Closed : VehicleRoofState.Opened;
+                }
+                else if (curon == 18)
+                {
+                    spawnedveh.SearchLightOn = (spawnedvehoption.ToLower() == "false") ? false : true;
+                }
+                else if (curon == 19)
+                {
+                    foreach (VehicleColor clr in Enum.GetValues(typeof(VehicleColor)))
+                    {
+                        if (spawnedvehoption == clr.ToString())
+                        {
+                            spawnedveh.SecondaryColor = clr;
+                            break;
+                        }
+                    }
+                }
+                else if (curon == 20)
+                {
+                    spawnedveh.SirenActive = (spawnedvehoption.ToLower() == "false") ? false : true;
+                }
+                else if (curon == 21)
+                {
+                    spawnedveh.TaxiLightOn = (spawnedvehoption.ToLower() == "false") ? false : true;
+                }
+                else if (curon == 22)
+                {
+                    //Color [A=255, R=231, G=213, B=42]
+
+                    int red = int.Parse(spawnedvehoption.Substring((spawnedvehoption.IndexOf("R=") + 2), 3).Replace(",", "").Replace(" ", ""));
+                    int green = int.Parse(spawnedvehoption.Substring((spawnedvehoption.IndexOf("G=") + 2), 3).Replace(",", "").Replace(" ", ""));
+                    int blue = int.Parse(spawnedvehoption.Substring((spawnedvehoption.IndexOf("B=") + 2), (spawnedvehoption.Length - (spawnedvehoption.IndexOf("B=") + 3))).Replace(",", "").Replace(" ", "")); 
+                    spawnedveh.TireSmokeColor = Color.FromArgb(red, green, blue);
+                }
+                else if (curon == 23)
+                {
+                    foreach (VehicleWheelType clr in Enum.GetValues(typeof(VehicleWheelType)))
+                    {
+                        if (spawnedvehoption == clr.ToString())
+                        {
+                            spawnedveh.WheelType = clr;
+                            break;
+                        }
+                    }
+                }
+                else if (curon == 24)
+                {
+                    foreach (VehicleWindowTint clr in Enum.GetValues(typeof(VehicleWindowTint)))
+                    {
+                        if (spawnedvehoption == clr.ToString())
+                        {
+                            spawnedveh.WindowTint = clr;
+                            break;
+                        }
+                    }
+                }
+                else if (curon == 25)
+                {
+                    spawnedveh.SetMod(VehicleMod.Armor, int.Parse(spawnedvehoption), false);
+                }
+                else if (curon == 26)
+                {
+                    spawnedveh.SetMod(VehicleMod.BackWheels, int.Parse(spawnedvehoption), false);
+                }
+                else if (curon == 27)
+                {
+                    spawnedveh.SetMod(VehicleMod.Brakes, int.Parse(spawnedvehoption), false);
+                }
+                else if (curon == 28)
+                {
+                    spawnedveh.SetMod(VehicleMod.Engine, int.Parse(spawnedvehoption), false);
+                }
+                //else if (curon == 29)
+                //{
+                //    spawnedveh.SetMod(VehicleMod.Exhaust, int.Parse(spawnedvehoption), false);
+                //}
+                //else if (curon == 30)
+                //{
+                //    spawnedveh.SetMod(VehicleMod.Fender, int.Parse(spawnedvehoption), false);
+                //}
+                //else if (curon == 31)
+                //{
+                //    spawnedveh.SetMod(VehicleMod.Frame, int.Parse(spawnedvehoption), false);
+                //}
+                //else if (curon == 32)
+                //{
+                //    spawnedveh.SetMod(VehicleMod.FrontBumper, int.Parse(spawnedvehoption), false);
+                //}
+                //else if (curon == 33)
+                //{
+                //    spawnedveh.SetMod(VehicleMod.FrontWheels, int.Parse(spawnedvehoption), false);
+                //}
+                //else if (curon == 34)
+                //{
+                //    spawnedveh.SetMod(VehicleMod.Grille, int.Parse(spawnedvehoption), false);
+                //}
+                //else if (curon == 35)
+                //{
+                //    spawnedveh.SetMod(VehicleMod.Hood, int.Parse(spawnedvehoption), false);
+                //}
+                //else if (curon == 36)
+                //{
+                //    spawnedveh.SetMod(VehicleMod.Horns, int.Parse(spawnedvehoption), false);
+                //}
+                //else if (curon == 37)
+                //{
+                //    spawnedveh.SetMod(VehicleMod.RearBumper, int.Parse(spawnedvehoption), false);
+                //}
+                //else if (curon == 38)
+                //{
+                //    spawnedveh.SetMod(VehicleMod.RightFender, int.Parse(spawnedvehoption), false);
+                //}
+                //else if (curon == 39)
+                //{
+                //    spawnedveh.SetMod(VehicleMod.Roof, int.Parse(spawnedvehoption), false);
+                //}
+                //else if (curon == 40)
+                //{
+                //    spawnedveh.SetMod(VehicleMod.SideSkirt, int.Parse(spawnedvehoption), false);
+                //}
+                else if (curon == 41)
+                {
+                    spawnedveh.SetMod(VehicleMod.Spoilers, int.Parse(spawnedvehoption), false);
+                }
+                else if (curon == 42)
+                {
+                    spawnedveh.SetMod(VehicleMod.Suspension, int.Parse(spawnedvehoption), false);
+                }
+                else if (curon == 43)
+                {
+                    spawnedveh.SetMod(VehicleMod.Transmission, int.Parse(spawnedvehoption), false);
+                }
+                else if (curon == 44)
+                {
+                    spawnedveh.ToggleMod(VehicleToggleMod.TireSmoke, (spawnedvehoption.ToLower() == "false") ? false : true);
+                }
+                else if (curon == 45)
+                {
+                    spawnedveh.ToggleMod(VehicleToggleMod.Turbo, (spawnedvehoption.ToLower() == "false") ? false : true);
+                }
+                else if (curon == 46)
+                {
+                    spawnedveh.ToggleMod(VehicleToggleMod.XenonHeadlights, (spawnedvehoption.ToLower() == "false") ? false : true);
+                }
+            }
+            //TODO: Add objects to object and peds to ped list by aiming. object.GetHashCode().
+        }
+        else
+        {
+            UI.Notify("File not found", true);
+        }
     }
 
     private void FixGodRide(Vehicle vehicle)
