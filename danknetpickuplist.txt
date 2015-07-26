@@ -1,0 +1,24 @@
+Molotov
+768803961
+Fire Extinguisher
+-887893374
+Parachute
+1735599485
+Crowbar
+-2027042680
+Golf Club
+-1997886297
+Hatchet
+4191993645
+Taser
+911657153
+Remote Sniper
+856002082
+Snowball
+126349499
+Railgun
+1834241177
+Digiscanner
+4256881901
+Firework
+2138347493
