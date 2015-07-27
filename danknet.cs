@@ -43,7 +43,6 @@ public class danknet : Script
     bool vehiclegun = false;
     bool pedmarkgun = false;
     bool objmarkgun = false;
-
     bool nethandle = false;
     bool vehhandle = false;
     Vehicle markedvehicle;
