@@ -16,7 +16,6 @@ public class danknet : Script
     private int helpup = 0;
     private int helpdown = 0;
     bool lasersight = false;
-    bool isinv = false;
     bool huddisabled = false;
     bool mobileradio = false;
     bool sonicmode = false;
@@ -43,8 +42,11 @@ public class danknet : Script
     bool vehiclegun = false;
     bool pedmarkgun = false;
     bool objmarkgun = false;
+    bool moneygun = false;
     bool nethandle = false;
     bool vehhandle = false;
+    List<Ped> godpeds = new List<Ped>();
+    List<Ped> gesturablepeds = new List<Ped>();
     Vehicle markedvehicle;
     Vehicle markedvehicle1;
     Vehicle markedvehicle2;
@@ -672,35 +674,11 @@ public class danknet : Script
         this.View.AddMenu(thismenu);
     }
 
-    private void OpenWeaponMenu()
+    private void OpenWeaponEditsMenu()
     {
         var menuItems = new List<IMenuItem>();
-        var toggle = new MenuToggle("Laser Sight", "BOOM HEADSHOT", lasersight);
-        toggle.Changed += (sender, args) =>
-        {
-            var tg = sender as MenuToggle;
-            if (tg == null)
-            {
-                return;
-            }
-            lasersight = tg.Value;
-            this.lazergun(tg.Value);
-        };
-        menuItems.Add(toggle);
-
-        toggle = new MenuToggle("Unlimited ammo", "Rek dem all", unlimited_ammo);
-        toggle.Changed += (sender, args) =>
-        {
-            var tg = sender as MenuToggle;
-            if (tg == null)
-            {
-                return;
-            }
-            unlimited_ammo = tg.Value;
-        };
-        menuItems.Add(toggle);
-
-        toggle = new MenuToggle("Shoot explosion", "Rek dem all", shootexp);
+        
+        var toggle = new MenuToggle("Shoot explosion", "Rek dem all", shootexp);
         toggle.Changed += (sender, args) =>
         {
             var tg = sender as MenuToggle;
@@ -819,6 +797,53 @@ public class danknet : Script
             vehiclegun = tg.Value;
         };
         menuItems.Add(toggle);
+
+        toggle = new MenuToggle("Money gun", "Pls do not use online", moneygun);
+        toggle.Changed += (sender, args) =>
+        {
+            var tg = sender as MenuToggle;
+            if (tg == null)
+            {
+                return;
+            }
+            moneygun = tg.Value;
+        };
+        menuItems.Add(toggle);
+
+        this.View.AddMenu(new Menu(("Weapon Edits Menu"), menuItems.ToArray()));
+    }
+
+    private void OpenWeaponMenu()
+    {
+        var menuItems = new List<IMenuItem>();
+        var toggle = new MenuToggle("Laser Sight", "BOOM HEADSHOT", lasersight);
+        toggle.Changed += (sender, args) =>
+        {
+            var tg = sender as MenuToggle;
+            if (tg == null)
+            {
+                return;
+            }
+            lasersight = tg.Value;
+            this.lazergun(tg.Value);
+        };
+        menuItems.Add(toggle);
+
+        toggle = new MenuToggle("Unlimited ammo", "Rek dem all", unlimited_ammo);
+        toggle.Changed += (sender, args) =>
+        {
+            var tg = sender as MenuToggle;
+            if (tg == null)
+            {
+                return;
+            }
+            unlimited_ammo = tg.Value;
+        };
+        menuItems.Add(toggle);
+        
+        var button = new MenuButton("Weapon Edits Menu", "");
+        button.Activated += (sender, args) => this.OpenWeaponEditsMenu();
+        menuItems.Add(button);
 
         var text = new MenuLabel("Unlock Weapons was Moved to Player Menu");
 
@@ -3604,7 +3629,7 @@ public class danknet : Script
         //};
         //menuItems.Add(toggle);
 
-        toggle = new MenuToggle("Godmode", "U cant die m8", isinv);
+        toggle = new MenuToggle("Godmode", "U cant die m8", godpeds.Contains(playa));
         toggle.Changed += (sender, args) =>
         {
             var tg = sender as MenuToggle;
@@ -3613,11 +3638,18 @@ public class danknet : Script
                 return;
             }
             playa.IsInvincible = tg.Value;
-            isinv = tg.Value;
+            if (tg.Value)
+            {
+                godpeds.Add(playa);
+            }
+            else
+            {
+                godpeds.Remove(playa);
+            }
         };
         menuItems.Add(toggle);
 
-        toggle = new MenuToggle("Able to Ragdoll", "TODO: Edit this", Game.Player.Character.CanRagdoll);
+        toggle = new MenuToggle("Able to Ragdoll", "TODO: Edit this", playa.CanRagdoll);
         toggle.Changed += (sender, args) =>
         {
             var tg = sender as MenuToggle;
@@ -3629,7 +3661,7 @@ public class danknet : Script
         };
         menuItems.Add(toggle);
 
-        toggle = new MenuToggle("Able to Gesture", "Dock ftw", abletogesture);
+        toggle = new MenuToggle("Able to Gesture", "Dock ftw", gesturablepeds.Contains(playa));
         toggle.Changed += (sender, args) =>
         {
             var tg = sender as MenuToggle;
@@ -3637,7 +3669,14 @@ public class danknet : Script
             {
                 return;
             }
-            abletogesture = tg.Value;
+            if (tg.Value)
+            {
+                gesturablepeds.Add(playa);
+            }
+            else
+            {
+                gesturablepeds.Remove(playa);
+            }
             playa.CanPlayGestures = tg.Value;
         };
         menuItems.Add(toggle);
@@ -5009,7 +5048,15 @@ public class danknet : Script
 
         lazergun(lasersight);
 
-        Game.Player.Character.IsInvincible = isinv;
+        foreach (Ped pd in gesturablepeds)
+        {
+            pd.CanPlayGestures = true;
+        }
+        foreach (Ped pd in godpeds)
+        {
+            pd.IsInvincible = true;
+        }
+
 
         Function.Call(Hash.DISPLAY_HUD, !huddisabled);
         Function.Call(Hash.DISPLAY_RADAR, !huddisabled);
@@ -5083,7 +5130,14 @@ public class danknet : Script
                 }
             }
 
-
+            if (moneygun && Game.Player.Character.IsShooting)
+            {
+                if (Game.Player.GetTargetedEntity().Exists())
+                {
+                    rainmoney(Game.Player.GetTargetedEntity().Position);
+                }
+            }
+            
             if (_100shotgun && Game.Player.Character.IsShooting)
             {
                 if (Game.Player.GetTargetedEntity().Exists())
