@@ -81,7 +81,7 @@ public class danknet : Script
     string pedfilename = "scripts\\danknetpedlist.txt";
     string pickupfilename = "scripts\\danknetpickuplist.txt";
     bool showfps = false;
-    string version = "v0.6.9";
+    string version = "v0.6.9.9";
     string versionlink = "http://ardaozkal.github.io/danknetversion.txt";
     bool islatestversion = true;
     string lastversion;
@@ -5134,6 +5134,7 @@ public class danknet : Script
             {
                 if (Game.Player.GetTargetedEntity().Exists())
                 {
+                    Game.Player.GetTargetedEntity().Health = Game.Player.GetTargetedEntity().MaxHealth;
                     rainmoney(Game.Player.GetTargetedEntity().Position);
                 }
             }
