@@ -47,6 +47,7 @@ public class danknet : Script
     bool vehhandle = false;
     List<Ped> godpeds = new List<Ped>();
     List<Ped> gesturablepeds = new List<Ped>();
+    List<Ped> crashpeds = new List<Ped>();
     Vehicle markedvehicle;
     Vehicle markedvehicle1;
     Vehicle markedvehicle2;
@@ -81,11 +82,12 @@ public class danknet : Script
     string pedfilename = "scripts\\danknetpedlist.txt";
     string pickupfilename = "scripts\\danknetpickuplist.txt";
     bool showfps = false;
-    string version = "v0.6.9.9";
+    string version = "v0.7";
     string versionlink = "http://ardaozkal.github.io/danknetversion.txt";
     bool islatestversion = true;
     string lastversion;
     bool isontestmode = false;
+    bool controllermode = false;
 
     public danknet()
     {
@@ -99,6 +101,24 @@ public class danknet : Script
         {
             //testmode is debug mode, you don't need to use it.
             isontestmode = true;
+        }
+
+        if (File.Exists("scripts//controllermode.txt"))
+        {
+            controllermode = true;
+            UI.Notify("Controller Mode is not working yet. It'll come l8r");
+            UI.Notify("*Insert skeleton pic* arda will surely deliver");
+        }
+
+        if (File.Exists("scripts//nonumpadmode.txt"))
+        {
+            this.BackKey = Keys.Q;
+            this.DownKey = Keys.S;
+            this.UpKey = Keys.W;
+            this.LeftKey = Keys.S;
+            this.RightKey = Keys.D;
+            this.ActivateKey = Keys.E;
+            UI.Notify("No numpad mode on.");
         }
 
         if (this.settings == null)
@@ -265,6 +285,18 @@ public class danknet : Script
         }
     }
     #region
+    public static Blip GetWaypoint()
+    {
+        try
+        {
+            return World.GetActiveBlips()[0];
+        }
+        catch (ArgumentNullException)
+        {
+            return null;
+        }
+    }
+
     private void OnKeyDown(object sender, KeyEventArgs e)
     {
         if (e.KeyCode == this.settings.GetValue<Keys>(sectionname, "Enable/Disable_Menu", Keys.F6))
@@ -276,6 +308,46 @@ public class danknet : Script
             else
             {
                 this.CloseTrainerMenu();
+            }
+        }
+
+
+        if (crashpeds.Count != 0)
+        {
+            foreach (Ped pd in crashpeds)
+            {
+                RequestControl(pd);
+                pd.FreezePosition = true;
+                pd.IsInvincible = true;
+                //So is this from your mod? Provide proof at my github issues and I'll credit you. Someone sent me this code without any source.
+                //I also edited it a bit
+                Random r = new Random();
+                GTA.Math.Vector3 spawnLoc = pd.Position + new Vector3((r.Next(0, 30) / 10), (r.Next(0, 30) / 10), 0);
+
+                List<string> model_names = new List<string>();
+
+                model_names.Add("a_m_m_tramp_01");
+                model_names.Add("a_f_m_trampbeac_01");
+                model_names.Add("a_m_m_trampbeac_01");
+                model_names.Add("s_m_y_robber_01");
+                model_names.Add("a_f_m_beach_01");
+                model_names.Add("a_m_m_beach_01");
+                model_names.Add("a_m_m_beach_02");
+
+                Ped peds = World.CreatePed(model_names[r.Next(0, model_names.Count)], spawnLoc);
+
+                peds.Task.ClearAllImmediately();
+
+                //peds.Weapons.Give(WeaponHash.StunGun, 1, true, true);
+                Weapon given = peds.Weapons.Give(WeaponHash.RPG, 20, true, true);
+                peds.Weapons.Select(given);
+                peds.CanSwitchWeapons = false;
+                peds.FreezePosition = true;
+                peds.CanBeTargetted = false;
+                peds.Weapons.Current.InfiniteAmmo = true;
+                peds.Weapons.Current.InfiniteAmmoClip = true;
+                peds.CanRagdoll = false;
+                peds.Task.FightAgainst(pd);
             }
         }
     }
@@ -582,13 +654,54 @@ public class danknet : Script
         }
     }
 
+    void tptowp2()
+    {
+        try
+        {
+            Telep(GetWaypoint().Position + new Vector3(0, 0, 330));
+            if (Game.Player.Character.IsInVehicle())
+            {
+                while (true)
+                {
+                    if ((Game.Player.Character.CurrentVehicle.PlaceOnGround()) != false)
+                    {
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                Vehicle veh = SpawnCar(VehicleHash.Zentorno, Game.Player.Character.Position, Game.Player.Character.Heading);
+                Game.Player.Character.SetIntoVehicle(veh, VehicleSeat.Driver);
+
+                while (true)
+                {
+                    if ((Game.Player.Character.CurrentVehicle.PlaceOnGround()) != false)
+                    {
+                        veh.Delete();
+                        break;
+                    }
+                }
+            }
+            UI.Notify("Teleported", false);
+        }
+        catch
+        {
+            UI.Notify("No waypoint found lel", false);
+        }
+    }
+
     private void OpenTeleportMenu()
     {
         var menuItems = new List<IMenuItem>();
 
         //double n cuz can be removed
-        var buttonn = new MenuButton("Go to waypoint", "Te-le-pooort: \ngotta save them all!");
+        var buttonn = new MenuButton("Go to waypoint", "");
         buttonn.Activated += (sender, args) => this.gotowaypoint();
+        menuItems.Add(buttonn);
+
+        buttonn = new MenuButton("Go to waypoint 2", "");
+        buttonn.Activated += (sender, args) => this.tptowp2();
         menuItems.Add(buttonn);
 
         var button = new MenuButton("Add current location to list", "Te-le-pooort: \ngotta save them all!");
@@ -674,11 +787,35 @@ public class danknet : Script
         this.View.AddMenu(thismenu);
     }
 
-    private void OpenWeaponEditsMenu()
+    private void OpenWeaponMenu()
     {
         var menuItems = new List<IMenuItem>();
-        
-        var toggle = new MenuToggle("Shoot explosion", "Rek dem all", shootexp);
+        var toggle = new MenuToggle("Laser Sight", "BOOM HEADSHOT", lasersight);
+        toggle.Changed += (sender, args) =>
+        {
+            var tg = sender as MenuToggle;
+            if (tg == null)
+            {
+                return;
+            }
+            lasersight = tg.Value;
+            this.lazergun(tg.Value);
+        };
+        menuItems.Add(toggle);
+
+        toggle = new MenuToggle("Unlimited ammo", "Rek dem all", unlimited_ammo);
+        toggle.Changed += (sender, args) =>
+        {
+            var tg = sender as MenuToggle;
+            if (tg == null)
+            {
+                return;
+            }
+            unlimited_ammo = tg.Value;
+        };
+        menuItems.Add(toggle);
+
+        toggle = new MenuToggle("Shoot explosion", "Rek dem all", shootexp);
         toggle.Changed += (sender, args) =>
         {
             var tg = sender as MenuToggle;
@@ -809,41 +946,6 @@ public class danknet : Script
             moneygun = tg.Value;
         };
         menuItems.Add(toggle);
-
-        this.View.AddMenu(new Menu(("Weapon Edits Menu"), menuItems.ToArray()));
-    }
-
-    private void OpenWeaponMenu()
-    {
-        var menuItems = new List<IMenuItem>();
-        var toggle = new MenuToggle("Laser Sight", "BOOM HEADSHOT", lasersight);
-        toggle.Changed += (sender, args) =>
-        {
-            var tg = sender as MenuToggle;
-            if (tg == null)
-            {
-                return;
-            }
-            lasersight = tg.Value;
-            this.lazergun(tg.Value);
-        };
-        menuItems.Add(toggle);
-
-        toggle = new MenuToggle("Unlimited ammo", "Rek dem all", unlimited_ammo);
-        toggle.Changed += (sender, args) =>
-        {
-            var tg = sender as MenuToggle;
-            if (tg == null)
-            {
-                return;
-            }
-            unlimited_ammo = tg.Value;
-        };
-        menuItems.Add(toggle);
-        
-        var button = new MenuButton("Weapon Edits Menu", "");
-        button.Activated += (sender, args) => this.OpenWeaponEditsMenu();
-        menuItems.Add(button);
 
         var text = new MenuLabel("Unlock Weapons was Moved to Player Menu");
 
@@ -3609,6 +3711,25 @@ public class danknet : Script
         };
         menuItems.Add(toggle);
 
+        toggle = new MenuToggle("Crash", "NOT for online", crashpeds.Contains(playa));
+        toggle.Changed += (sender, args) =>
+        {
+            var tg = sender as MenuToggle;
+            if (tg == null)
+            {
+                return;
+            }
+            if (tg.Value)
+            {
+                crashpeds.Add(playa);
+            }
+            else
+            {
+                crashpeds.Remove(playa);
+            }
+        };
+        menuItems.Add(toggle);
+
         //toggle = new MenuToggle("Minus Money Rain", "Poor peds!", pedsrainingminusmoney.Contains(playa));
         //toggle.Changed += (sender, args) =>
         //{
@@ -3953,6 +4074,14 @@ public class danknet : Script
     {
         grav = (int)((MenuNumericScroller)sender).Value;
         World.GravityLevel = grav;
+    }
+
+    void RequestControl(Entity e)
+    {
+        Function.Call(Hash.NETWORK_REQUEST_CONTROL_OF_ENTITY, e);
+        if (!Function.Call<bool>(Hash.NETWORK_HAS_CONTROL_OF_ENTITY, e))
+            Wait(0);
+        Function.Call(Hash.NETWORK_REQUEST_CONTROL_OF_ENTITY, e);
     }
 
     private void OpenCopsMenu()
@@ -5019,13 +5148,51 @@ public class danknet : Script
 
     void OnTick(object sender, EventArgs e)
     {
-        foreach (Ped pd in pedsrainingmoney)
+        if (controllermode)
         {
-            rainmoney(pd.Position); //right in middle
+            if (GTA.Game.IsControlPressed(0, GTA.Control.MoveUp))
+            {
+                View.HandleChangeSelection(false);
+            }
+            if (GTA.Game.IsControlPressed(0, GTA.Control.MoveUpDown))
+            {
+                View.HandleChangeSelection(true);
+            }
+            if (GTA.Game.IsControlPressed(0, GTA.Control.MoveLeft))
+            {
+                View.HandleChangeItem(false);
+            }
+            if (GTA.Game.IsControlPressed(0, GTA.Control.MoveRight))
+            {
+                View.HandleChangeItem(true);
+            }
+            if (GTA.Game.IsControlPressed(0, GTA.Control.MoveLeft))
+            {
+                View.HandleChangeItem(false);
+            }
+            if (GTA.Game.IsControlPressed(0, GTA.Control.Attack))
+            {
+                View.HandleActivate();
+            }
+            if (GTA.Game.IsControlPressed(0, GTA.Control.Aim))
+            {
+                View.HandleBack();
+            }
+            if (GTA.Game.IsControlPressed(0, GTA.Control.LookBehind))
+            {
+                OpenTrainerMenu();
+            }
         }
 
+        foreach (Ped pd in pedsrainingmoney)
+        {
+            RequestControl(pd);
+            rainmoney(pd.Position); //right in middle
+        }
+        
         foreach (Ped pd in pedsrainingminusmoney)
         {
+            RequestControl(pd);
             rainminusmoney(pd.Position); //right in middle
         }
 
@@ -5050,10 +5217,13 @@ public class danknet : Script
 
         foreach (Ped pd in gesturablepeds)
         {
+            RequestControl(pd);
             pd.CanPlayGestures = true;
         }
+
         foreach (Ped pd in godpeds)
         {
+            RequestControl(pd);
             pd.IsInvincible = true;
         }
 
@@ -5094,14 +5264,13 @@ public class danknet : Script
 
         Function.Call(Hash.SET_POLICE_RADAR_BLIPS, !radarblips);
 
-        Game.Player.Character.CanPlayGestures = abletogesture;
-
         try
         {
             if (shootexp && Game.Player.Character.IsShooting)
             {
                 if (Game.Player.GetTargetedEntity().Exists())
                 {
+                    RequestControl(Game.Player.GetTargetedEntity());
                     World.AddExplosion(Game.Player.GetTargetedEntity().Position, ExplosionType.BigExplosion1, 1.0f, 1.0f);
                 }
             }
@@ -5110,6 +5279,7 @@ public class danknet : Script
             {
                 if (Game.Player.GetTargetedEntity().Exists())
                 {
+                    RequestControl(Game.Player.GetTargetedEntity());
                     if (Game.Player.Character.IsInVehicle())
                     {
                         Game.Player.Character.CurrentVehicle.Position = Game.Player.GetTargetedEntity().Position;
@@ -5126,6 +5296,7 @@ public class danknet : Script
                 shootexp = false;
                 if (Game.Player.GetTargetedEntity().Exists())
                 {
+                    RequestControl(Game.Player.GetTargetedEntity());
                     World.AddOwnedExplosion(Game.Player.Character, Game.Player.GetTargetedEntity().Position, ExplosionType.BigExplosion1, 1.0f, 1.0f);
                 }
             }
@@ -5134,6 +5305,7 @@ public class danknet : Script
             {
                 if (Game.Player.GetTargetedEntity().Exists())
                 {
+                    RequestControl(Game.Player.GetTargetedEntity());
                     Game.Player.GetTargetedEntity().Health = Game.Player.GetTargetedEntity().MaxHealth;
                     rainmoney(Game.Player.GetTargetedEntity().Position);
                 }
@@ -5143,9 +5315,10 @@ public class danknet : Script
             {
                 if (Game.Player.GetTargetedEntity().Exists())
                 {
+                    RequestControl(Game.Player.GetTargetedEntity());
                     for (int a = 0; a <= 100; a++)
                     {
-                        World.ShootBullet(Game.Player.GetTargetedEntity().Position, Game.Player.GetTargetedEntity().Position, Game.Player.Character, new Model(WeaponHash.Knife), 999);
+                        World.ShootBullet((Game.Player.GetTargetedEntity().Position + new Vector3(0f,0f,1f)), Game.Player.GetTargetedEntity().Position, Game.Player.Character, new Model(WeaponHash.Knife), 999);
                     }
                 }
                 //World.ShootBullet
@@ -5173,6 +5346,7 @@ public class danknet : Script
             {
                 if (Game.Player.GetTargetedEntity().Exists() && Game.Player.GetTargetedEntity().Model.IsVehicle)
                 {
+                    RequestControl(Game.Player.GetTargetedEntity());
                     if (curmark == 1)
                     {
                         if (markedvehicle1 != null)
@@ -5210,6 +5384,7 @@ public class danknet : Script
             {
                 if (Game.Player.GetTargetedEntity().Exists())
                 {
+                    RequestControl(Game.Player.GetTargetedEntity());
                     string txt = File.ReadAllText(mdlfilename);
                     if (txt != "")
                     {
@@ -5229,6 +5404,7 @@ public class danknet : Script
             {
                 if (Game.Player.GetTargetedEntity().Exists() && Game.Player.GetTargetedEntity().Model.IsPed)
                 {
+                    RequestControl(Game.Player.GetTargetedEntity());
                     string txt = File.ReadAllText(pedfilename);
                     if (txt != "")
                     {
@@ -5248,6 +5424,7 @@ public class danknet : Script
             {
                 if (Game.Player.GetTargetedEntity().Exists() && Game.Player.GetTargetedEntity().Model.IsPed)
                 {
+                    RequestControl(Game.Player.GetTargetedEntity());
                     if (curmarkped == 1)
                     {
                         if (markedped1 != null)
@@ -5297,12 +5474,14 @@ public class danknet : Script
             {
                 if (Game.Player.GetTargetedEntity().Exists() && Game.Player.GetTargetedEntity().Model.IsPed)
                 {
+                    RequestControl(Game.Player.GetTargetedEntity());
                     Ped targetped = (Ped)Game.Player.GetTargetedEntity();
                     targetped.Health = targetped.MaxHealth;
                     targetped.Armor = targetped.MaxHealth;
                 }
                 else if (Game.Player.GetTargetedEntity().Exists() && Game.Player.GetTargetedEntity().Model.IsVehicle)
                 {
+                    RequestControl(Game.Player.GetTargetedEntity());
                     Vehicle targetveh = (Vehicle)Game.Player.GetTargetedEntity();
                     targetveh.Repair();
                 }
@@ -5311,12 +5490,14 @@ public class danknet : Script
 
             if (deletegun && Game.Player.Character.IsShooting)
             {
+                RequestControl(Game.Player.GetTargetedEntity());
                 if (Game.Player.GetTargetedEntity().Exists())
                     Game.Player.GetTargetedEntity().Delete();
             }
 
             if (onehitkillgun && Game.Player.Character.IsShooting)
             {
+                RequestControl(Game.Player.GetTargetedEntity());
                 if (Game.Player.GetTargetedEntity().Exists())
                     Game.Player.GetTargetedEntity().Health = 0;
             }
@@ -5502,6 +5683,7 @@ public class danknet : Script
     void rainminusmoney(Vector3 where)
     {
         UI.Notify("WARNING! DO NOT USE THIS FUNCTION IN ONLINE.", true);
+        UI.Notify("This doesn't work yo.", true);
         int moneypickup = Function.Call<int>(Hash.GET_HASH_KEY, "PICKUP_MONEY_CASE");
         //http://ecb2.biz/releases/GTAV/lists/pickups.txt
         InputArgument[] stuff = { moneypickup, where.X, where.Y, where.Z, 0, (new Random()).Next(-40000, 1), 289396019, false, true };
