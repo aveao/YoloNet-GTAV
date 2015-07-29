@@ -45,6 +45,7 @@ public class danknet : Script
     bool moneygun = false;
     bool nethandle = false;
     bool vehhandle = false;
+    bool expbymarkedped = false;
     List<Ped> godpeds = new List<Ped>();
     List<Ped> gesturablepeds = new List<Ped>();
     List<Ped> crashpeds = new List<Ped>();
@@ -56,6 +57,7 @@ public class danknet : Script
     Ped markedped1;
     Ped markedped2;
     Ped markedped3;
+    Ped framedped;
     int curmark = 1;
     int curmarkped = 1;
     Menu Markmenu;
@@ -82,12 +84,13 @@ public class danknet : Script
     string pedfilename = "scripts\\danknetpedlist.txt";
     string pickupfilename = "scripts\\danknetpickuplist.txt";
     bool showfps = false;
-    string version = "v0.7";
+    string version = "v0.8";
     string versionlink = "http://ardaozkal.github.io/danknetversion.txt";
     bool islatestversion = true;
     string lastversion;
     bool isontestmode = false;
     bool controllermode = false;
+    bool docheckforupdates = true;
 
     public danknet()
     {
@@ -340,13 +343,15 @@ public class danknet : Script
 
                 //peds.Weapons.Give(WeaponHash.StunGun, 1, true, true);
                 Weapon given = peds.Weapons.Give(WeaponHash.RPG, 20, true, true);
+                peds.Position = new Vector3(peds.Position.X, peds.Position.Y, pd.Position.Z); //place on ground
                 peds.Weapons.Select(given);
                 peds.CanSwitchWeapons = false;
                 peds.FreezePosition = true;
-                peds.CanBeTargetted = false;
+                peds.CanBeTargetted = true;
                 peds.Weapons.Current.InfiniteAmmo = true;
                 peds.Weapons.Current.InfiniteAmmoClip = true;
                 peds.CanRagdoll = false;
+                peds.IsInvincible = true;
                 peds.Task.FightAgainst(pd);
             }
         }
@@ -432,25 +437,28 @@ public class danknet : Script
 
     void CheckForUpdate()
     {
-        try
+        if (docheckforupdates)
         {
-            System.Net.WebClient wc = new System.Net.WebClient();
-            string downloadedstring = wc.DownloadString(versionlink);
-            if (!downloadedstring.StartsWith(version)) //so we won't have windows 9, we will have windows 10.
+            try
             {
-                UI.Notify("A new update is available, new version: " + downloadedstring);
-                islatestversion = false;
-                lastversion = downloadedstring;
+                System.Net.WebClient wc = new System.Net.WebClient();
+                string downloadedstring = wc.DownloadString(versionlink);
+                if (!downloadedstring.StartsWith(version)) //so we won't have windows 9, we will have windows 10.
+                {
+                    UI.Notify("A new update is available, new version: " + downloadedstring);
+                    islatestversion = false;
+                    lastversion = downloadedstring;
+                }
+                else
+                {
+                    UI.Notify("DankNet Menu is up to date");
+                    islatestversion = true;
+                }
             }
-            else
+            catch
             {
-                UI.Notify("DankNet Menu is up to date");
-                islatestversion = true;
+                UI.Notify("Failed checking updates. Check your internet. (It might be on my side too tho.)");
             }
-        }
-        catch
-        {
-            UI.Notify("Failed checking updates. Check your internet. (It might be on my side too tho.)");
         }
     }
 
@@ -475,6 +483,10 @@ public class danknet : Script
         {
             var button = new MenuButton("Unmark", "");
             button.Activated += (sender, args) => this.UnMark();
+            menuItems.Add(button);
+
+            button = new MenuButton("Set as Framed Ped", "Go to weapon menu to activate");
+            button.Activated += (sender, args) => this.FramePed();
             menuItems.Add(button);
         }
         else
@@ -535,6 +547,11 @@ public class danknet : Script
 
         Markmenu = new Menu("(Ped) Mark Menu", menuItems.ToArray());
         this.View.AddMenu(Markmenu);
+    }
+
+    void FramePed()
+    {
+        framedped = markedped;
     }
 
     private void OpenVehicleMarkMenu()
@@ -839,6 +856,18 @@ public class danknet : Script
         };
         menuItems.Add(toggle);
 
+        toggle = new MenuToggle("Shoot explosion by framed ped", "Set from ped mark menu first", expbymarkedped);
+        toggle.Changed += (sender, args) =>
+        {
+            var tg = sender as MenuToggle;
+            if (tg == null)
+            {
+                return;
+            }
+            expbymarkedped = tg.Value;
+        };
+        menuItems.Add(toggle);
+
         toggle = new MenuToggle("Delete gun", "get ready for crash", deletegun);
         toggle.Changed += (sender, args) =>
         {
@@ -1021,6 +1050,10 @@ public class danknet : Script
 
         button = new MenuButton("Change Plate", "SWAGYOLO ftw");
         button.Activated += (sender, args) => this.changeplate(veh);
+        menuItems.Add(button);
+
+        button = new MenuButton("Change Plate Type", "YANKTOOOOOOON");
+        button.Activated += (sender, args) => this.changeplatetype(veh);
         menuItems.Add(button);
 
         var numero = new MenuNumericScroller("Light multiplier", "", 1, 1001, 10);
@@ -1454,9 +1487,18 @@ public class danknet : Script
         button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Banshee, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
         menuItems.Add(button);
 
+        button = new MenuButton("Spawn Massacro", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Massacro, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
+        button = new MenuButton("Spawn Massacro (Racecar)", "");
+        button.Activated += (sender, args) => this.SpawnCar(VehicleHash.Massacro2, (Game.Player.Character.Position + new Vector3(0f, 0f, 1f)), Game.Player.Character.Heading);
+        menuItems.Add(button);
+
         this.View.AddMenu(new Menu("Spawn Menu (Sport 2)", menuItems.ToArray()));
     }
-
+    //TODO: Is there a way with mods to allow guns in apartment?
+    //ped.CanChangeWeapons etc maybe?
     private void OpenSportClassicSpawnMenu()
     {
         var menuItems = new List<IMenuItem>();
@@ -3653,6 +3695,10 @@ public class danknet : Script
         button.Activated += (sender, args) => this.UnlockAllWeapons(playa);
         menuItems.Add(button);
 
+        button = new MenuButton("Remove all guns", "fist fite me nüb");
+        button.Activated += (sender, args) => this.DoRemoveAllWeapons(playa);
+        menuItems.Add(button);
+        
         button = new MenuButton("Burn", "*fire sound*");
         button.Activated += (sender, args) => this.BreatheFire(playa);
         menuItems.Add(button);
@@ -3808,9 +3854,52 @@ public class danknet : Script
             button.Activated += (sender, args) => this.PlayerSelfMenu(playa);
             menuItems.Add(button);
         }
+        else
+        {
+            button = new MenuButton("Open Self Menu", "");
+            button.Activated += (sender, args) => this.PlayerSelfMenu(playa);
+            menuItems.Add(button);
+        }
 
         this.View.AddMenu(new Menu("Player Menu", menuItems.ToArray()));
     }
+
+    //class onlineplayer
+    //{
+    //    static string name
+    //    {
+    //        get;
+    //        set;
+    //    }
+    //    static int playerIndex
+    //    {
+    //        get;
+    //        set;
+    //    }
+    //    static Ped playerPed
+    //    {
+    //        get;
+    //        set;
+    //    }
+    //}
+
+    //void OpenOnlineMenu()
+    //{
+    //    List<onlineplayer> op = new List<onlineplayer>();
+    //    var menuItems = new List<IMenuItem>();
+
+    //    for (int i = 1; i < 31; i++)
+    //    {
+    //        if (Function.Call<bool>(Hash.INT_TO_PLAYERINDEX, i))
+    //        {
+    //            op.Add(new onlineplayer(GET_PLAYER_NAME(i), i, PLAYER::INT_TO_PLAYERINDEX(i), PLAYER::GET_PLAYER_NAME(i) };
+    //    }
+    //            else
+    //                    onlinePlayers[i] = { "-NOTHING-", NULL, NULL, NULL };
+    //    }
+
+    //    this.View.AddMenu(new Menu("Online Players Menu", menuItems.ToArray()));
+    //}
 
     private void PlayerSelfMenu(Ped playa)
     {
@@ -5150,37 +5239,33 @@ public class danknet : Script
     {
         if (controllermode)
         {
-            if (GTA.Game.IsControlPressed(0, GTA.Control.MoveUp))
+            if (GTA.Game.IsControlJustReleased(2, GTA.Control.ScriptPadUp))
             {
-                View.HandleChangeSelection(false);
+                View.HandleChangeSelection(false);//TODO, doesnt work
             }
-            if (GTA.Game.IsControlPressed(0, GTA.Control.MoveUpDown))
+            if (GTA.Game.IsControlJustReleased(2, GTA.Control.ScriptPadDown))
             {
-                View.HandleChangeSelection(true);
+                View.HandleChangeSelection(true);//TODO, doesnt work
             }
-            if (GTA.Game.IsControlPressed(0, GTA.Control.MoveLeft))
+            if (GTA.Game.IsControlJustReleased(2, GTA.Control.ScriptPadLeft))
             {
-                View.HandleChangeItem(false);
+                View.HandleChangeItem(false); //left
             }
-            if (GTA.Game.IsControlPressed(0, GTA.Control.MoveRight))
+            if (GTA.Game.IsControlJustReleased(2, GTA.Control.ScriptPadRight))
             {
-                View.HandleChangeItem(true);
+                View.HandleChangeItem(true); //right
             }
-            if (GTA.Game.IsControlPressed(0, GTA.Control.MoveLeft))
+            if (GTA.Game.IsControlJustReleased(2, GTA.Control.Attack))
             {
-                View.HandleChangeItem(false);
+                View.HandleActivate(); //l2
             }
-            if (GTA.Game.IsControlPressed(0, GTA.Control.Attack))
+            if (GTA.Game.IsControlJustReleased(2, GTA.Control.Aim))
             {
-                View.HandleActivate();
+                View.HandleBack(); //r2
             }
-            if (GTA.Game.IsControlPressed(0, GTA.Control.Aim))
+            if (GTA.Game.IsControlJustReleased(2, GTA.Control.Attack) && GTA.Game.IsControlJustReleased(2, GTA.Control.Aim))
             {
-                View.HandleBack();
-            }
-            if (GTA.Game.IsControlPressed(0, GTA.Control.LookBehind))
-            {
-                OpenTrainerMenu();
+                OpenTrainerMenu(); //l2+l2
             }
         }
 
@@ -5266,18 +5351,18 @@ public class danknet : Script
 
         try
         {
-            if (shootexp && Game.Player.Character.IsShooting)
+            if (shootexp)
             {
-                if (Game.Player.GetTargetedEntity().Exists())
+                if (Game.Player.GetTargetedEntity().Exists() && Game.Player.Character.IsShooting)
                 {
                     RequestControl(Game.Player.GetTargetedEntity());
                     World.AddExplosion(Game.Player.GetTargetedEntity().Position, ExplosionType.BigExplosion1, 1.0f, 1.0f);
                 }
             }
 
-            if (tpgun && Game.Player.Character.IsShooting)
+            if (tpgun)
             {
-                if (Game.Player.GetTargetedEntity().Exists())
+                if (Game.Player.GetTargetedEntity().Exists() && Game.Player.Character.IsShooting)
                 {
                     RequestControl(Game.Player.GetTargetedEntity());
                     if (Game.Player.Character.IsInVehicle())
@@ -5291,19 +5376,30 @@ public class danknet : Script
                 }
             }
 
-            if (shootexpbyme && Game.Player.Character.IsShooting)
+            if (shootexpbyme)
             {
                 shootexp = false;
-                if (Game.Player.GetTargetedEntity().Exists())
+                if (Game.Player.GetTargetedEntity().Exists() && Game.Player.Character.IsShooting)
                 {
                     RequestControl(Game.Player.GetTargetedEntity());
                     World.AddOwnedExplosion(Game.Player.Character, Game.Player.GetTargetedEntity().Position, ExplosionType.BigExplosion1, 1.0f, 1.0f);
                 }
             }
 
-            if (moneygun && Game.Player.Character.IsShooting)
+            if (expbymarkedped)
             {
-                if (Game.Player.GetTargetedEntity().Exists())
+                shootexp = false;
+                shootexpbyme = false;
+                if (Game.Player.GetTargetedEntity().Exists() && Game.Player.Character.IsShooting)
+                {
+                    RequestControl(Game.Player.GetTargetedEntity());
+                    World.AddOwnedExplosion(Game.Player.Character, Game.Player.GetTargetedEntity().Position, ExplosionType.BigExplosion1, 1.0f, 1.0f);
+                }
+            }
+
+            if (moneygun)
+            {
+                if (Game.Player.GetTargetedEntity().Exists() && Game.Player.Character.IsShooting)
                 {
                     RequestControl(Game.Player.GetTargetedEntity());
                     Game.Player.GetTargetedEntity().Health = Game.Player.GetTargetedEntity().MaxHealth;
@@ -5311,9 +5407,9 @@ public class danknet : Script
                 }
             }
             
-            if (_100shotgun && Game.Player.Character.IsShooting)
+            if (_100shotgun)
             {
-                if (Game.Player.GetTargetedEntity().Exists())
+                if (Game.Player.GetTargetedEntity().Exists() && Game.Player.Character.IsShooting)
                 {
                     RequestControl(Game.Player.GetTargetedEntity());
                     for (int a = 0; a <= 100; a++)
@@ -5674,9 +5770,9 @@ public class danknet : Script
     void rainmoney(Vector3 where)
     {
         UI.Notify("WARNING! DO NOT USE THIS FUNCTION IN ONLINE.", true);
-        int moneypickup = Function.Call<int>(Hash.GET_HASH_KEY, "PICKUP_MONEY_CASE");
+        int moneypickup = Function.Call<int>(Hash.GET_HASH_KEY, "PICKUP_MONEY_MED_BAG");
         //http://ecb2.biz/releases/GTAV/lists/pickups.txt
-        InputArgument[] stuff = { moneypickup, where.X, where.Y, where.Z, 0, (new Random()).Next(0, 40000), 289396019, false, true };
+        InputArgument[] stuff = { moneypickup, where.X, where.Y, where.Z, 0, (new Random()).Next(5000, 40000), 289396019, false, true };
         Function.Call(Hash.CREATE_AMBIENT_PICKUP, stuff);
     }
 
@@ -5684,10 +5780,24 @@ public class danknet : Script
     {
         UI.Notify("WARNING! DO NOT USE THIS FUNCTION IN ONLINE.", true);
         UI.Notify("This doesn't work yo.", true);
-        int moneypickup = Function.Call<int>(Hash.GET_HASH_KEY, "PICKUP_MONEY_CASE");
+        int moneypickup = Function.Call<int>(Hash.GET_HASH_KEY, "PICKUP_MONEY_MED_BAG");
         //http://ecb2.biz/releases/GTAV/lists/pickups.txt
         InputArgument[] stuff = { moneypickup, where.X, where.Y, where.Z, 0, (new Random()).Next(-40000, 1), 289396019, false, true };
         Function.Call(Hash.CREATE_AMBIENT_PICKUP, stuff);
+    }
+
+    void changeplatetype(Vehicle veh)
+    {
+        //If u say "what does this do?": http://www11.pic-upload.de/23.05.15/9gktm66sz1sd.jpg
+        int plate = Function.Call<int>(Hash.GET_VEHICLE_NUMBER_PLATE_TEXT_INDEX, veh);
+        if (plate == 5)
+        {
+            Function.Call(Hash.SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX, veh, 0);
+        }
+        else
+        {
+            Function.Call(Hash.SET_VEHICLE_NUMBER_PLATE_TEXT_INDEX, veh, plate++);
+        }
     }
 
     private void spawnpickup(Model modelname, Vector3 pos)
