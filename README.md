@@ -1,4 +1,4 @@
-# DankNet-GTAV
+# YoloNet-GTAV (Formerly DankNet-GTAV)
 [![forthebadge](http://forthebadge.com/images/badges/built-by-hipsters.svg)](http://forthebadge.com) & [![forthebadge](http://forthebadge.com/images/badges/built-by-developers.svg)](http://forthebadge.com)
 
 [![forthebadge](http://forthebadge.com/images/badges/made-with-crayons.svg)](http://forthebadge.com) [![forthebadge](http://forthebadge.com/images/badges/built-with-swag.svg)](http://forthebadge.com)
@@ -7,13 +7,13 @@
 
 A .Net, more specifically C# based GTA V menu, based on ScriptHookVDotNet, containing (small) referances to dank memes.
 
-To clarify, name is references to dank memes, not "high quality weed".
+Renamed because, former name was a reference to dank memes, not "high quality weed", but it was misundersood.
 
 **More info about License:**
 If you download this and send it to someone/share it publicly or privately, you have to state that it is based on this project that was made by me.
 
 **How to report a bug/a request:**
-Send an issue [here](https://github.com/ardaozkal/DankNet-GTAV/issues).
+Send an issue [here](https://github.com/ardaozkal/YoloNet-GTAV/issues).
 
 **How to help:**
 Just send a pull request.
@@ -35,6 +35,6 @@ Do NOT use this online. Although there is no checks if you use this online or no
 
 **2-2)** Install it by copying the .asi and .dll file to GTA V folder.
 
-**3)** [Download this project as zip](https://github.com/ardaozkal/DankNet-GTAV/archive/master.zip) and copy the .cs and .txt files (not license and readme.md) to the /scripts/ folder under your GTAV folder. (if it doesn't exist, create it)
+**3)** [Download this project as zip](https://github.com/ardaozkal/YoloNet-GTAV/archive/master.zip) and copy the .cs and .txt files (not license and readme.md) to the /scripts/ folder under your GTAV folder. (if it doesn't exist, create it)
 
 **Done.** *It opens with F6 key.*
