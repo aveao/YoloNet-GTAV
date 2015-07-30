@@ -7,6 +7,8 @@
 
 A .Net, more specifically C# based GTA V menu, based on ScriptHookVDotNet, containing (small) referances to dank memes.
 
+To clarify, name is references to dank memes, not "high quality weed".
+
 **More info about License:**
 If you download this and send it to someone/share it publicly or privately, you have to state that it is based on this project that was made by me.
 
