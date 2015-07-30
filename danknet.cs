@@ -9,7 +9,7 @@ using System.IO;
 using System.Drawing;
 using System.Text;
 
-public class danknet : Script
+public class yolonet : Script
 {
     private bool noclip = false;
     private int speed = 10;
@@ -73,27 +73,27 @@ public class danknet : Script
     List<Ped> pedsrainingmoney = new List<Ped>();
     List<Ped> pedsrainingminusmoney = new List<Ped>();
     Vector3 tpfactor = new Vector3(0f, 0f, 3f);
-    string configfile = "scripts\\danknetmenu.txt";
+    string configfile = "scripts\\yolonetmenu.txt";
     private ScriptSettings settings;
     private Dictionary<Vector3, string> tplist = new Dictionary<Vector3, string>();
     private Dictionary<string, int> mdllist = new Dictionary<string, int>();
     private Dictionary<string, int> pedlist = new Dictionary<string, int>();
     private Dictionary<string, int> pickuplist = new Dictionary<string, int>();
-    string sectionname = "DANKNETMENU";
-    string tpfilename = "scripts\\danknettplist.txt";
-    string mdlfilename = "scripts\\danknetmdllist.txt";
-    string pedfilename = "scripts\\danknetpedlist.txt";
-    string pickupfilename = "scripts\\danknetpickuplist.txt";
+    string sectionname = "YOLONETMENU";
+    string tpfilename = "scripts\\yolonettplist.txt";
+    string mdlfilename = "scripts\\yolonetmdllist.txt";
+    string pedfilename = "scripts\\yolonetpedlist.txt";
+    string pickupfilename = "scripts\\yolonetpickuplist.txt";
     bool showfps = false;
     string version = "v0.9";
-    string versionlink = "http://ardaozkal.github.io/danknetversion.txt";
+    string versionlink = "http://ardaozkal.github.io/yolonetversion.txt";
     bool islatestversion = true;
     string lastversion;
     bool isontestmode = false;
     bool controllermode = false;
     bool docheckforupdates = true;
 
-    public danknet()
+    public yolonet()
     {
         settings = ScriptSettings.Load(configfile);
         this.View.MenuTransitions = true;
@@ -101,7 +101,7 @@ public class danknet : Script
         this.KeyDown += this.OnKeyDown;
         CheckForUpdate();
 
-        if (File.Exists("scripts//danknet.dev"))
+        if (File.Exists("scripts//yolonet.dev"))
         {
             //testmode is debug mode, you don't need to use it.
             isontestmode = true;
@@ -420,7 +420,7 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenVehicleMenu(Game.Player.Character.CurrentVehicle);
         menuItems.Add(button);
 
-        button = new MenuButton("Teleport Menu", "Beam me up Dank-ty!");
+        button = new MenuButton("Teleport Menu", "Beam me up Scotty!");
         button.Activated += (sender, args) => this.OpenTeleportMenu();
         menuItems.Add(button);
 
@@ -440,7 +440,7 @@ public class danknet : Script
         button.Activated += (sender, args) => this.OpenAbout();
         menuItems.Add(button);
 
-        this.View.AddMenu(new Menu(("Danknet Menu " + version), menuItems.ToArray()));
+        this.View.AddMenu(new Menu(("YoloNet Menu " + version), menuItems.ToArray()));
     }
 
     void CheckForUpdate()
@@ -459,7 +459,7 @@ public class danknet : Script
                 }
                 else
                 {
-                    UI.Notify("DankNet Menu is up to date");
+                    UI.Notify("YoloNet Menu is up to date");
                     islatestversion = true;
                 }
             }
@@ -5952,12 +5952,12 @@ public class danknet : Script
 
     private void SaveCarToFile(Vehicle veh, string name)
     {
-        if (!Directory.Exists("scripts//danknetvehiclefiles//"))
+        if (!Directory.Exists("scripts//yolonetvehiclefiles//"))
         {
-            Directory.CreateDirectory("scripts//danknetvehiclefiles//");
+            Directory.CreateDirectory("scripts//yolonetvehiclefiles//");
             //if it doesn't exist, make it
         }
-        if (File.Exists("scripts//danknetvehiclefiles//" + name))
+        if (File.Exists("scripts//yolonetvehiclefiles//" + name))
         {
             if (name.EndsWith(")"))
             {
@@ -6020,18 +6020,18 @@ public class danknet : Script
             tosave += veh.IsToggleModOn(VehicleToggleMod.TireSmoke) + Environment.NewLine;
             tosave += veh.IsToggleModOn(VehicleToggleMod.Turbo) + Environment.NewLine;
             tosave += veh.IsToggleModOn(VehicleToggleMod.XenonHeadlights) + Environment.NewLine;
-            File.Create("scripts//danknetvehiclefiles//" + name).Close();
-            File.WriteAllText(("scripts//danknetvehiclefiles//" + name), tosave);
+            File.Create("scripts//yolonetvehiclefiles//" + name).Close();
+            File.WriteAllText(("scripts//yolonetvehiclefiles//" + name), tosave);
             //TODO: Add objects to object and peds to ped list by aiming. object.GetHashCode().
         }
     }
 
     private void LoadCarFromFile(string name)
     {
-        if (File.Exists("scripts//danknetvehiclefiles//" + name))
+        if (File.Exists("scripts//yolonetvehiclefiles//" + name))
         {
             List<string> spawnedvehtoload = new List<string>();
-            spawnedvehtoload.AddRange(File.ReadAllLines("scripts//danknetvehiclefiles//" + name));
+            spawnedvehtoload.AddRange(File.ReadAllLines("scripts//yolonetvehiclefiles//" + name));
             int curon = 0;
             Vehicle spawnedveh = Game.Player.LastVehicle; //just to unbug
             bool IsPrimaryColorCustom = false;
