@@ -45,6 +45,7 @@ public class danknet : Script
     bool moneygun = false;
     bool nethandle = false;
     bool vehhandle = false;
+    bool isonhaxmode = true; //CHANGE FOR GTA5-MODS
     bool expbymarkedped = false;
     List<Ped> godpeds = new List<Ped>();
     List<Ped> gesturablepeds = new List<Ped>();
@@ -84,7 +85,7 @@ public class danknet : Script
     string pedfilename = "scripts\\danknetpedlist.txt";
     string pickupfilename = "scripts\\danknetpickuplist.txt";
     bool showfps = false;
-    string version = "v0.8";
+    string version = "v0.9";
     string versionlink = "http://ardaozkal.github.io/danknetversion.txt";
     bool islatestversion = true;
     string lastversion;
@@ -395,6 +396,13 @@ public class danknet : Script
         button = new MenuButton("(Pickup) Spawn Menu", "Money and Railgun, \nwe have them all");
         button.Activated += (sender, args) => this.OpenSpawnMenuPickup();
         menuItems.Add(button);
+
+        if (isonhaxmode)
+        {
+            button = new MenuButton("Online Players", "TODO:EDIT THIS");
+            button.Activated += (sender, args) => this.getonlinelist();
+            menuItems.Add(button);
+        }
 
         button = new MenuButton("Weapon Menu", "TODO:EDIT THIS");
         button.Activated += (sender, args) => this.OpenWeaponMenu();
@@ -3061,12 +3069,64 @@ public class danknet : Script
         lastprop.Rotation = vec;
     }
 
+    void toggleoff()
+    {
+        lastprop.FreezePosition = false;
+    }
+
+    void toggleon()
+    {
+        lastprop.FreezePosition = true;
+    }
+
+    void getonlinelist()
+    {
+        Dictionary<string, Ped> playas = new Dictionary<string, Ped>();
+        var menuItems = new List<IMenuItem>();
+        for (int i = 0; i < 30; i++)
+        {
+            try
+            {
+                playas.Add(Function.Call<string>(Hash.GET_PLAYER_NAME, i), Function.Call<Ped>(Hash.GET_PLAYER_PED, Function.Call<int>(Hash.INT_TO_PLAYERINDEX, i)));
+            }
+            catch
+            {
+
+            }
+        }
+
+        foreach (string name in playas.Keys)
+        {
+            if (name != "**Invalid**" && name != "ZyDevs" && name != "ardaozkal" && name != "tr0teK" && name != "Atomic - Chimera" && name != "Atomic - Chimera")
+            {
+                //^These are contributors, you can't grief us. Last guy is winner of the "find out the option" contest.
+                Ped jeped = Game.Player.Character;
+
+                playas.TryGetValue(name, out jeped);
+
+                var button = new MenuButton(name, "Access " + name + "'s menu");
+                button.Activated += (sender, args) => this.OpenPlayerMenu(jeped);
+                menuItems.Add(button);
+            }
+        }
+        
+        this.View.AddMenu(new Menu("Online Players", menuItems.ToArray()));
+    }
+
     private void OpenLastPropMenu()
     {
         var menuItems = new List<IMenuItem>();
 
         var button = new MenuButton("Save Last Prop", "Example Input:\nblabla.txt");
         button.Activated += (sender, args) => this.savelastprop(Game.GetUserInput(25));
+        menuItems.Add(button);
+
+        button = new MenuButton("Dynamic ON", "");
+        button.Activated += (sender, args) => this.toggleon();
+        menuItems.Add(button);
+
+        button = new MenuButton("Dynamic OFF", "");
+        button.Activated += (sender, args) => this.toggleoff();
         menuItems.Add(button);
 
         var text = new MenuLabel("Position Set:", true);
@@ -3854,15 +3914,51 @@ public class danknet : Script
             button.Activated += (sender, args) => this.PlayerSelfMenu(playa);
             menuItems.Add(button);
         }
-        else
+        else if (isonhaxmode)
         {
-            button = new MenuButton("Open Self Menu", "");
-            button.Activated += (sender, args) => this.PlayerSelfMenu(playa);
+            button = new MenuButton("Open Page 2", "");
+            button.Activated += (sender, args) => this.editonlineplayers(playa);
             menuItems.Add(button);
         }
 
         this.View.AddMenu(new Menu("Player Menu", menuItems.ToArray()));
     }
+
+    void frammeeee(Ped playa)
+    {
+        framedped = playa;
+    }
+
+    void editonlineplayers(Ped playa)
+    {
+        var menuItems = new List<IMenuItem>();
+
+        var button = new MenuButton(("Tp me to " + ((playa.Gender == Gender.Female) ? "her" : "him")), "");
+        button.Activated += (sender, args) => this.Telep(playa.Position);
+        menuItems.Add(button);
+
+        button = new MenuButton(("Tp " + ((playa.Gender == Gender.Female) ? "her" : "him") + " to me"), "");
+        button.Activated += (sender, args) => this.Telep(playa.Position);
+        menuItems.Add(button);
+
+        button = new MenuButton(("Frame " + ((playa.Gender == Gender.Female) ? "her" : "him")), "Go to weapon menu to activate");
+        button.Activated += (sender, args) => this.frammeeee(playa);
+        menuItems.Add(button);
+
+        if (playa.IsInVehicle())
+        {
+            button = new MenuButton("Open vehicle menu", "");
+            button.Activated += (sender, args) => this.OpenVehicleMenu(playa.CurrentVehicle);
+            menuItems.Add(button);
+        }
+        
+        //TODO: Get vehicle of ped
+        //TODO: Online list
+        //TODO: Color pick menu. Enum to foreach + skip code.
+
+        this.View.AddMenu(new Menu("Player Menu", menuItems.ToArray()));
+    }
+    
 
     //class onlineplayer
     //{
@@ -5049,6 +5145,18 @@ public class danknet : Script
         }
     }
 
+    private void Telep(Ped playa, Vector3 loc)
+    {
+        if (playa.IsInVehicle())
+        {
+            playa.CurrentVehicle.Position = loc;
+        }
+        else
+        {
+            playa.Position = loc;
+        }
+    }
+
     private void addcurrenttotplist()
     {
         tplist.Add(Game.Player.Character.Position, (Game.GetUserInput(21) + " "));
@@ -5379,6 +5487,7 @@ public class danknet : Script
             if (shootexpbyme)
             {
                 shootexp = false;
+                shootexpbyme = false;
                 if (Game.Player.GetTargetedEntity().Exists() && Game.Player.Character.IsShooting)
                 {
                     RequestControl(Game.Player.GetTargetedEntity());
@@ -5390,10 +5499,10 @@ public class danknet : Script
             {
                 shootexp = false;
                 shootexpbyme = false;
-                if (Game.Player.GetTargetedEntity().Exists() && Game.Player.Character.IsShooting)
+                if (Game.Player.GetTargetedEntity().Exists() && framedped.Exists() && Game.Player.Character.IsShooting)
                 {
                     RequestControl(Game.Player.GetTargetedEntity());
-                    World.AddOwnedExplosion(Game.Player.Character, Game.Player.GetTargetedEntity().Position, ExplosionType.BigExplosion1, 1.0f, 1.0f);
+                    World.AddOwnedExplosion(framedped, Game.Player.GetTargetedEntity().Position, ExplosionType.BigExplosion1, 1.0f, 1.0f);
                 }
             }
 
@@ -5770,9 +5879,8 @@ public class danknet : Script
     void rainmoney(Vector3 where)
     {
         UI.Notify("WARNING! DO NOT USE THIS FUNCTION IN ONLINE.", true);
-        int moneypickup = Function.Call<int>(Hash.GET_HASH_KEY, "PICKUP_MONEY_MED_BAG");
         //http://ecb2.biz/releases/GTAV/lists/pickups.txt
-        InputArgument[] stuff = { moneypickup, where.X, where.Y, where.Z, 0, (new Random()).Next(5000, 40000), 289396019, false, true };
+        InputArgument[] stuff = { -831529621, where.X, where.Y, where.Z, 0, (new Random()).Next(5000, 40000), 289396019, false, true };
         Function.Call(Hash.CREATE_AMBIENT_PICKUP, stuff);
     }
 
@@ -6184,7 +6292,6 @@ public class danknet : Script
             UI.Notify("File not found", true);
         }
     }
-
     private void FixGodRide(Vehicle vehicle)
     {
         vehicle.CanBeVisiblyDamaged = false;
