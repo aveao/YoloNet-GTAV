@@ -3952,8 +3952,6 @@ public class yolonet : Script
             menuItems.Add(button);
         }
         
-        //TODO: Get vehicle of ped
-        //TODO: Online list
         //TODO: Color pick menu. Enum to foreach + skip code.
 
         this.View.AddMenu(new Menu("Player Menu", menuItems.ToArray()));
@@ -5880,7 +5878,8 @@ public class yolonet : Script
     {
         UI.Notify("WARNING! DO NOT USE THIS FUNCTION IN ONLINE.", true);
         //http://ecb2.biz/releases/GTAV/lists/pickups.txt
-        InputArgument[] stuff = { -831529621, where.X, where.Y, where.Z, 0, (new Random()).Next(5000, 40000), 289396019, false, true };
+        int PICKUP_MONEY_CASE = Function.Call<int>(Hash.GET_HASH_KEY,"PICKUP_MONEY_CASE");
+        InputArgument[] stuff = { PICKUP_MONEY_CASE, where.X, where.Y, where.Z, 0, (new Random()).Next(5000, 40000), 289396019, false, true };
         Function.Call(Hash.CREATE_AMBIENT_PICKUP, stuff);
     }
 
