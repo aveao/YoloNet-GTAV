@@ -38,3 +38,7 @@ Do NOT use this online. Although there is no checks if you use this online or no
 **3)** [Download this project as zip](https://github.com/ardaozkal/YoloNet-GTAV/archive/master.zip) and copy the .cs and .txt files (not license and readme.md) to the /scripts/ folder under your GTAV folder. (if it doesn't exist, create it)
 
 **Done.** *It opens with F6 key.*
+
+
+Credits:
+Tr0tek for helping for a small submenu
